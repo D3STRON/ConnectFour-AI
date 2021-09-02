@@ -15,6 +15,15 @@ class Matrix{
         }
     }
     
+    put(row, column, value)
+    {
+        this.data[row][column]= value;
+    }
+
+    get(row, column)
+    {
+        return this.data[row][column];
+    }
     randomize()
     {
         for(let i=0;i<this.rows;i++)

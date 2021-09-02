@@ -1,6 +1,6 @@
 
 class NeuralNetwork{
-    constructor(numI, numH, numO)
+    constructor(numI, numO)
     {
         if (numI instanceof NeuralNetwork) {
             let a = numI;
@@ -18,7 +18,7 @@ class NeuralNetwork{
             this.delta_activation= a.delta_activation
           } else {
         this.input_nodes=numI 
-        this.hidden_nodes=numH
+        this.hidden_nodes=Math.ceil(Math.sqrt(numI*numO))
         this.output_nodes=numO
         this.weight_ih= new Matrix(this.hidden_nodes,this.input_nodes)// the list of weights between input nodes and hidden nodes in this adjacency matrix
         this.weight_ih.randomize()// all weights will be random to begin with
@@ -36,9 +36,7 @@ class NeuralNetwork{
 
     feedforward(input_array)
     {
-        this.inputs = Matrix.fromArray(input_array)// converting input array to a object of Matrix class to perfomr Matrix operations
-        
-        this.hidden= Matrix.multiply(this.weight_ih,this.inputs)
+        this.hidden= Matrix.multiply(this.weight_ih,input_array)
         this.hidden.add(this.bias_h)//output of the weighted sum plus bias
         this.hidden.map(this.activation)// finally pass that outputs at every hidden node through the activation function to get the hidden layers final output
         

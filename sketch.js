@@ -1,4 +1,4 @@
-const board_size = 5;
+const board_size = 7;
 const max_generations = 1000;
 const offspring_per_generation = 1024;
 const mr = 0.1;

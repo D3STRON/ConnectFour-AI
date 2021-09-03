@@ -28,7 +28,7 @@ class NeuralNetwork{
             this.bias_o=new Matrix(this.output_nodes,1)
             this.bias_o.randomize()
             this.learning_rate= 0.1
-            this.activation = reLU
+            this.activation = sigmoid
             this.delta_activation= dsigmoid
           }
     }

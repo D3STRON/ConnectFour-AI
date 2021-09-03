@@ -3,34 +3,33 @@ class NeuralNetwork{
     constructor(numI, numO)
     {
         if (numI instanceof NeuralNetwork) {
-            let a = numI;
-            this.input_nodes = a.input_nodes;
-            this.hidden_nodes = a.hidden_nodes;
-            this.output_nodes = a.output_nodes;
+            this.input_nodes = numI.input_nodes;
+            this.hidden_nodes = numI.hidden_nodes;
+            this.output_nodes = numI.output_nodes;
       
-           //console.log(a)
-            this.weight_ih = a.weight_ih.copy();
-            this.weight_ho = a.weight_ho.copy();
+            this.weight_ih = numI.weight_ih.copy();
+            this.weight_ho = numI.weight_ho.copy();
       
-            this.bias_h = a.bias_h.copy();
-            this.bias_o = a.bias_o.copy();
-            this.activation= a.activation
-            this.delta_activation= a.delta_activation
-          } else {
-        this.input_nodes=numI 
-        this.hidden_nodes=Math.ceil(Math.sqrt(numI*numO))
-        this.output_nodes=numO
-        this.weight_ih= new Matrix(this.hidden_nodes,this.input_nodes)// the list of weights between input nodes and hidden nodes in this adjacency matrix
-        this.weight_ih.randomize()// all weights will be random to begin with
-        this.weight_ho=new Matrix(this.output_nodes,this.hidden_nodes)//the list of weights between hidden nodes and output nodes in this adjacency matrix
-        this.weight_ho.randomize()
-        this.bias_h= new Matrix(this.hidden_nodes,1)
-        this.bias_h.randomize()
-        this.bias_o=new Matrix(this.output_nodes,1)
-        this.bias_o.randomize()
-        this.learning_rate= 0.1
-        this.activation = reLU
-        this.delta_activation= dsigmoid
+            this.bias_h = numI.bias_h.copy();
+            this.bias_o = numI.bias_o.copy();
+            this.activation= numI.activation
+            this.delta_activation= numI.delta_activation
+        } 
+        else {
+            this.input_nodes=numI 
+            this.hidden_nodes=Math.ceil(Math.sqrt(numI*numO))
+            this.output_nodes=numO
+            this.weight_ih= new Matrix(this.hidden_nodes,this.input_nodes)// the list of weights between input nodes and hidden nodes in this adjacency matrix
+            this.weight_ih.randomize()// all weights will be random to begin with
+            this.weight_ho=new Matrix(this.output_nodes,this.hidden_nodes)//the list of weights between hidden nodes and output nodes in this adjacency matrix
+            this.weight_ho.randomize()
+            this.bias_h= new Matrix(this.hidden_nodes,1)
+            this.bias_h.randomize()
+            this.bias_o=new Matrix(this.output_nodes,1)
+            this.bias_o.randomize()
+            this.learning_rate= 0.1
+            this.activation = reLU
+            this.delta_activation= dsigmoid
           }
     }
 
@@ -90,12 +89,11 @@ class NeuralNetwork{
             }else{
                 return val
             }
-        }    
-    //console.log(this.weight_ih)    
-    this.weight_ih.map(mutate);
-    this.weight_ho.map(mutate);
-    this.bias_h.map(mutate);
-    this.bias_o.map(mutate);
+        }      
+        this.weight_ih.map(mutate);
+        this.weight_ho.map(mutate);
+        this.bias_h.map(mutate);
+        this.bias_o.map(mutate);
   }
   copy()
   {

@@ -1,10 +1,10 @@
 class Board{
     
-    constructor(size)
+    constructor()
     {
-        this.size = size;
-        this.height_of_column = new Array(size).fill(0);
-        this.board_array = new Matrix(size*size,1)
+        this.size = board_size;
+        this.height_of_column = new Array(board_size).fill(0);
+        this.board_array = new Matrix(this.size*this.size,1)
         this.connect = 4
     }
 
@@ -28,7 +28,7 @@ class Board{
         {
             return playerID;
         }
-        return 3;
+        return 'not over';
     }
 
     check(row, column, increment_row, increment_col)

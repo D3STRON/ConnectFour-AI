@@ -1,7 +1,14 @@
 class Player{
-    constructor(board_size)
+    constructor(brain)
     {
-        this.brain = new NeuralNetwork(board_size*board_size,board_size);
+        if(brain instanceof NeuralNetwork)
+        {
+            this.brain= brain.copy()
+        }
+        else
+        {
+            this.brain = new NeuralNetwork(board_size*board_size,board_size);
+        }
     }
     
     make_move(board)

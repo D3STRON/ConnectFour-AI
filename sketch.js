@@ -4,6 +4,7 @@ const offspring_per_generation = 1024;
 const mr = 0.1;
 const connect = 4;
 const min_max_depth = 5;
+const points_per_pin = 2;
 var ParentPlayer;
 
 function setup()
@@ -61,7 +62,12 @@ function print_board(board)
         data[i]=[]
         for(let j=0;j<board_size;j++)
         {
-            data[i][j]=board.board_array.get(board.map_coordinates(i,j),0);
+            if(board.board_array.get(board.map_coordinates(i,j),0)==0)
+                data[i][j]='_';
+            else if(board.board_array.get(board.map_coordinates(i,j),0)==1)
+                data[i][j]='A'; 
+            else
+                data[i][j]='B'           
         }
     }
     console.log(data);

@@ -39,7 +39,7 @@ class Player{
             {
                 playerType = -1;
             }
-            score += board.evaluate(playerType,i);
+            score += board.evaluate_player(playerType,i);
             if(score == playerType*Infinity)
             {
                 board.remove_pin(i);

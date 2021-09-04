@@ -74,9 +74,7 @@ class Board{
         }
         score += this.check_minMax(row, column, 1, 1) + this.check_minMax(row,column,1,0) 
                 + this.check_minMax(row,column, -1, 1) + this.check_minMax(row,column,0, 1); 
-        // this.board_array.put(this.map_coordinates(row,column),0,0);
-        // this.height_of_column[column]--;
-        return score;
+        return score*playerType;
     }
 
     check_minMax(row, column, increment_row, increment_col)
@@ -104,7 +102,7 @@ class Board{
             if(this.board_array.get(this.map_coordinates(next_row,next_col),0)==type){
                 if (continuous && pins ==this.connect-1)
                 {
-                    return type*Infinity
+                    return Infinity
                 }
                 pins+=1;
             }
@@ -119,5 +117,18 @@ class Board{
     map_coordinates(row, column)
     {
         return row*this.size + column;
+    }
+
+    remove_pin(column)
+    {
+        this.height_of_column[column]--;
+        var row = this.height_of_column[column];
+        this.board_array.put(this.map_coordinates(row,column),0,0);
+    }
+    put_pin(playerID,column)
+    {
+        var row = this.height_of_column[column];
+        this.board_array.put(this.map_coordinates(row,column),0,playerID);
+        this.height_of_column[column]++;
     }
 }

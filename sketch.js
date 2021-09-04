@@ -85,6 +85,9 @@ function play(players, board)
 
 function play_with_bot(column,board)
 {
-    board.add_and_check(1,column);
-    board.add_and_check(2,ParentPlayer.make_move(board));
+    board.put_pin(-1,column);
+    var move = Player.make_move_minMax(board,1,8);
+    // console.log(move);
+    board.put_pin(1,move);
+    print_board(board)
 }

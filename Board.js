@@ -8,16 +8,16 @@ class Board{
         this.connect = connect
     }
 
-    evaluate_player(playerType, column)
+    evaluate_move(playerType, column)
     {
         var row = this.height_of_column[column];
-        var score = 0;
         if(row==this.size){
 
             return -1*playerType*Infinity;
         }
         this.board_array.put(this.map_coordinates(row,column),0,playerType);
         this.height_of_column[column]++;
+        var score = 0;
         if(Math.floor(this.size/2)==column)
         {
             score += 5;
@@ -44,6 +44,7 @@ class Board{
         }
         next_row -= increment_row;
         next_col -= increment_col;
+        var continuous_pins = 0;
         var continuous = true;
         while(next_row>=0 && next_row<this.size 
             && next_col>=0 && next_col<this.size 
@@ -53,8 +54,9 @@ class Board{
             
             if(this.board_array.get(this.map_coordinates(next_row,next_col),0)==type){
                 pins+=1;
+                continuous_pins+=1;
                 continuous = true;
-                if (continuous && pins ==this.connect)
+                if (continuous && continuous_pins ==this.connect)
                 {
                     return Infinity
                 }
@@ -64,12 +66,13 @@ class Board{
                 {
                     gaps +=1;
                 }
+                continuous_pins = 0;
                 continuous = false;
             }
             next_row -= increment_row;
             next_col -= increment_col;  
         }
-        if(pins+gaps>=this.connect)
+        if(pins+gaps>=this.connect && pins>1)
         {
             return pins*points_per_pin;
         }
@@ -77,6 +80,7 @@ class Board{
     }
     map_coordinates(row, column)
     {
+        //maps matrix coordinates to linear coordinates
         return row*this.size + column;
     }
 

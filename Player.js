@@ -1,6 +1,7 @@
 class Player{
     constructor(brain)
     {
+        this.fitness = 0;
         if(brain instanceof NeuralNetwork)
         {
             this.brain= brain.copy()
@@ -39,7 +40,7 @@ class Player{
             {
                 playerType = -1;
             }
-            score += board.evaluate_player(playerType,i);
+            score += board.evaluate_move(playerType,i);
             if(score == playerType*Infinity)
             {
                 board.remove_pin(i);

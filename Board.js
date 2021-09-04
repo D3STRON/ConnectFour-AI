@@ -82,10 +82,11 @@ class Board{
         var type =  this.board_array.get(this.map_coordinates(row,column),0);
         var next_row = row;
         var next_col = column;
-        var pins = -1;
+        var pins = 0;
         while(next_row>=0 && next_row<this.size 
             && next_col>=0 && next_col<this.size 
-            && this.board_array.get(this.map_coordinates(next_row,next_col),0)==type)
+            && (this.board_array.get(this.map_coordinates(next_row,next_col),0)==type 
+            || this.board_array.get(this.map_coordinates(next_row,next_col),0)==0))
         {
             next_row += increment_row;
             next_col += increment_col;
@@ -100,11 +101,12 @@ class Board{
         {
             
             if(this.board_array.get(this.map_coordinates(next_row,next_col),0)==type){
-                if (continuous && pins ==this.connect-1)
+                pins+=1;
+                continuous = true;
+                if (continuous && pins ==this.connect)
                 {
                     return Infinity
                 }
-                pins+=1;
             }
             else{
                 continuous = false;

@@ -2,7 +2,8 @@ const board_size = 7;
 const max_generations = 1000;
 const offspring_per_generation = 1024;
 const mr = 0.1;
-const connect = 3
+const connect = 4;
+const min_max_depth = 5;
 var ParentPlayer;
 
 function setup()
@@ -73,7 +74,7 @@ function play(players, board)
     var i = 1
     while(game_status<=0 && i<=board_size*board_size)
     {
-        game_status = board.add_and_check(i%2+1,players_this_game[i%2].make_move(board));
+        game_status = board.add_and_check(i%2+1,players_this_game[i%2].make_move_NN(board));
         i+=1; 
     }
     if(game_status<=0)
@@ -86,8 +87,6 @@ function play(players, board)
 function play_with_bot(column,board)
 {
     board.put_pin(-1,column);
-    var move = Player.make_move_minMax(board,1,8);
-    // console.log(move);
-    board.put_pin(1,move);
+    board.put_pin(1,Player.make_move_minMax(board,1,5));
     print_board(board)
 }

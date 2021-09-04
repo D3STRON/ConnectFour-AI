@@ -11,7 +11,7 @@ class Player{
         }
     }
     
-    make_move(board)
+    make_move_NN(board)
     {
         let output = this.brain.feedforward(board.board_array);
         let max = -Infinity;
@@ -56,7 +56,7 @@ class Player{
                     score += this.make_move_minMax(board, depth+1, expectedDepth)
                 }
                 board.remove_pin(i);
-                if(playerType>0 && score>max)
+                if(playerType>0 && score>=max)
                 {
                     max = score;
                     output = score;
@@ -65,7 +65,7 @@ class Player{
                         output = i;
                     }
                 }
-                else if(playerType<0 && score<min){
+                else if(playerType<0 && score<=min){
                     min = score;
                     output = score;
                     if(depth ==1)

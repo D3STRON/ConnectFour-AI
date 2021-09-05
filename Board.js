@@ -9,6 +9,8 @@ class Board{
         this.display_size = this.size*this.size*10
         this.unit_size = this.size*10
         this.padding = 50;
+        this.gap_point = 0.2
+        this.pin_point = 2
     }
 
     show()
@@ -41,12 +43,14 @@ class Board{
         var score_divisor = (Math.abs(Math.floor(this.size/2)-column)+1)
         score += Math.floor(this.size/score_divisor);
         // check socre in horizontal vertical and diagonal directions
-        score += this.check_score(row, column, 1, 1) + this.check_score(row,column,1,0) 
-                + this.check_score(row,column, -1, 1) + this.check_score(row,column,0, 1); 
+        score += this.check_score(row, column, 1, 1, this.gap_point) 
+                    + this.check_score(row,column,1,0,0) 
+                        + this.check_score(row,column, -1, 1, this.gap_point) 
+                            + this.check_score(row,column,0, 1, this.gap_point); 
         return score*playerType;
     }
 
-    check_score(row, column, increment_row, increment_col)
+    check_score(row, column, increment_row, increment_col, gap_point)
     {
         var type =  this.board_array.get(this.map_coordinates(row,column),0);
         var next_row = row;
@@ -95,12 +99,11 @@ class Board{
             next_col -= increment_col;  
         }
         //the gaps in the line + the pin should be 4 so that its possible to create a line of 4
-        if(pins+gaps>=this.connect && pins>1)
+        if(pins+gaps>=this.connect && (pins>1 || gaps>=this.connect))
         {
-            return pins*points_per_pin + gaps*0.2;
+            return pins*points_per_pin + gaps*this.gap_point;
         }
-        //more gaps more possibilities
-        return gaps*0.2;
+        return 0
     }
     map_coordinates(row, column)
     {

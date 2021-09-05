@@ -9,7 +9,7 @@ class Board{
         this.display_size = this.size*this.size*10
         this.unit_size = this.size*10
         this.padding = 50;
-        this.gap_point = 0.2
+        this.gap_point = 0.3
         this.pin_point = 2
     }
 
@@ -36,12 +36,11 @@ class Board{
 
             return -1*playerType*Infinity;
         }
-        var score = 0;
         //the closer to the center the more the score it gets
         //lesser the (chosen_column- Center_column) lesser will be the score divisor
         //hence more will be score
         var score_divisor = (Math.abs(Math.floor(this.size/2)-column)+1)
-        score += Math.floor(this.size/score_divisor);
+        var score = Math.floor(this.size/score_divisor);
         // check socre in horizontal vertical and diagonal directions
         score += this.check_score(row, column, 1, 1, this.gap_point) 
                     + this.check_score(row,column,1,0,0) 
@@ -99,7 +98,7 @@ class Board{
             next_col -= increment_col;  
         }
         //the gaps in the line + the pin should be 4 so that its possible to create a line of 4
-        if(pins+gaps>=this.connect && (pins>1 || gaps>=this.connect))
+        if(pins+gaps>=this.connect && (pins>1 || gaps>=this.connect-1))
         {
             return pins*points_per_pin + gaps*this.gap_point;
         }

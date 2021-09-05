@@ -111,7 +111,6 @@ function undo_move()
     var pin =  pins.pop();
     console.log(pin)
     var column = (pin.x-(display_board.padding + display_board.unit_size/2))/display_board.unit_size;
-    console.log(column)
     display_board.remove_pin(column);
     var pin =  pins.pop();
     var column = (pin.x-(display_board.padding + display_board.unit_size/2))/display_board.unit_size;

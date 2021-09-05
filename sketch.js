@@ -33,7 +33,7 @@ function mouseClicked() {
         var column = Math.floor((mouseX-display_board.padding)/display_board.unit_size)
         add_pin_at(column)
         console.log(column)
-        add_pin_at(Player.make_move_minMax(display_board,turn_of,5))
+        add_pin_at(Player.make_move_minMax(display_board,turn_of,8))
         // print_board(display_board)
     }
 }

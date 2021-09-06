@@ -30,26 +30,6 @@ class Board{
         }
     }
 
-    evaluate_move(playerType, column)
-    {
-        var row = this.height_of_column[column];
-        if(this.put_pin(playerType,column)==false){
-
-            return -1*playerType*Infinity;
-        }
-        //the closer to the center the more the score it gets
-        //lesser the (chosen_column- Center_column) lesser will be the score divisor
-        //hence more will be score
-        var score_divisor = (Math.abs(Math.floor(this.size/2)-column)+1)
-        var score = Math.floor(this.size/score_divisor);
-        // check socre in horizontal vertical and diagonal directions
-        score += this.check_score(row, column, 1, 1) 
-                    + this.check_score(row,column,1,0) 
-                        + this.check_score(row,column, -1, 1) 
-                            + this.check_score(row,column,0, 1); 
-        return score*playerType;
-    }
-
     check_score(row, column, increment_row, increment_col)
     {
         var type =  this.get_pin_at(row,column);

@@ -40,7 +40,7 @@ class Player{
             {
                 playerType = -1;
             }
-            score += board.evaluate_move(playerType,i);
+            score += this.evaluate_move(playerType,board,i);
             if(score == playerType*Infinity)
             {
                 board.remove_pin(i);
@@ -78,4 +78,24 @@ class Player{
         }
         return output;
     } 
+
+    static evaluate_move(playerType, board, column)
+    {
+        var row = board.height_of_column[column];
+        if(board.put_pin(playerType,column)==false){
+
+            return -1*playerType*Infinity;
+        }
+        //the closer to the center the more the score it gets
+        //lesser the (chosen_column- Center_column) lesser will be the score divisor
+        //hence more will be score
+        var score_divisor = (Math.abs(Math.floor(board.size/2)-column)+1)
+        var score = Math.floor(board.size/score_divisor);
+        // check socre in horizontal vertical and diagonal directions
+        score += board.check_score(row, column, 1, 1) 
+                    + board.check_score(row,column,1,0) 
+                        + board.check_score(row,column, -1, 1) 
+                            + board.check_score(row,column,0, 1); 
+        return score*playerType;
+    }
 }

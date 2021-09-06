@@ -10,6 +10,7 @@ var display_board;
 var ParentPlayer;
 var pins = [];
 var turn_of = -1;
+var expected_depth = 5;
 
 function setup()
 {
@@ -33,7 +34,11 @@ function mouseClicked() {
         var column = Math.floor((mouseX-display_board.padding)/display_board.unit_size)
         add_pin_at(column)
         console.log(column)
-        add_pin_at(Player.make_move_minMax(display_board,turn_of,8))
+        add_pin_at(Player.make_move_minMax(display_board,turn_of,expected_depth));
+        if(display_board.committed_pins%6==0)
+        {
+            expected_depth += 2;
+        }
         // print_board(display_board)
     }
 }
@@ -45,7 +50,7 @@ function add_pin_at(column)
         display_board.padding + display_board.unit_size/2;  
     pinY = (board_size-1-row)*display_board.unit_size+
         display_board.padding + display_board.unit_size/2;
-    if(display_board.put_pin(turn_of,column)==true)
+    if(display_board.commit_move(turn_of,column)==true)
     {
         pins.push(new Pin(pinX, pinY,turn_of));
         turn_of *= -1
@@ -111,10 +116,10 @@ function undo_move()
     var pin =  pins.pop();
     console.log(pin)
     var column = (pin.x-(display_board.padding + display_board.unit_size/2))/display_board.unit_size;
-    display_board.remove_pin(column);
+    display_board.uncommit_move(column);
     var pin =  pins.pop();
     var column = (pin.x-(display_board.padding + display_board.unit_size/2))/display_board.unit_size;
-    display_board.remove_pin(column);
+    display_board.uncommit_move(column);
 }
 
 function play(players, board)

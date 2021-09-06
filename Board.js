@@ -9,8 +9,9 @@ class Board{
         this.display_size = this.size*this.size*10;
         this.unit_size = this.size*10
         this.padding = 50;
-        this.gap_point = 0.3;
+        this.gap_point = 0.2;
         this.pin_point = 2;
+        this.committed_pins = 0;
     }
 
     show()
@@ -116,6 +117,7 @@ class Board{
         return row*this.size + column;
     }
 
+    //this is just for min max scenario checking
     remove_pin(column)
     {
         if(this.height_of_column[column]>0)
@@ -127,6 +129,7 @@ class Board{
         }
         return false;
     }
+    //this is just for min max scenario checking
     put_pin(playerID,column)
     {
         if(this.height_of_column[column]<this.size)
@@ -134,6 +137,34 @@ class Board{
             var row = this.height_of_column[column];
             this.board_array.put(this.map_coordinates(row,column),0,playerID);
             this.height_of_column[column]++;
+            return true;
+        }
+        return false;
+    }
+
+    // this uncommits the move on the board
+    uncommit_move(column)
+    {
+        if(this.height_of_column[column]>0)
+        {
+            this.height_of_column[column]--;
+            var row = this.height_of_column[column];
+            this.board_array.put(this.map_coordinates(row,column),0,0);
+            this.committed_pins--;
+            return true;
+        }
+        return false;
+    }
+
+    // this function commits the move to the board
+    commit_move(playerID,column)
+    {
+        if(this.height_of_column[column]<this.size)
+        {
+            var row = this.height_of_column[column];
+            this.board_array.put(this.map_coordinates(row,column),0,playerID);
+            this.height_of_column[column]++;
+            this.committed_pins++;
             return true;
         }
         return false;

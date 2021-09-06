@@ -9,8 +9,6 @@ class Board{
         this.display_size = this.size*this.size*10;
         this.unit_size = this.size*10
         this.padding = 50;
-        this.gap_point = 0.2;
-        this.pin_point = 2;
         this.committed_pins = 0;
     }
 
@@ -28,62 +26,6 @@ class Board{
                 ellipse((this.unit_size*i)+(this.unit_size/2)+this.padding,(this.unit_size*j)+(this.unit_size/2)+this.padding,pin_radius,pin_radius)
             }
         }
-    }
-
-    check_score(row, column, increment_row, increment_col)
-    {
-        var type =  this.get_pin_at(row,column);
-        var next_row = row;
-        var next_col = column;
-        var pins = 0;
-        var gaps = 0;
-        //this loop goes the extreme end of the line we are trying to check 
-        while(next_row>=0 && next_row<this.size 
-            && next_col>=0 && next_col<this.size 
-            && (this.get_pin_at(next_row,next_col)==type 
-            || this.get_pin_at(next_row,next_col)==0))
-        {
-            next_row += increment_row;
-            next_col += increment_col;
-        }
-        // we need to come a staep back if we hit another pin or the edge to start counting
-        next_row -= increment_row;
-        next_col -= increment_col;
-        var continuous_pins = 0;
-        var continuous = true;
-        //now we count the pins
-        while(next_row>=0 && next_row<this.size 
-            && next_col>=0 && next_col<this.size 
-            && (this.get_pin_at(next_row,next_col)==type 
-            || this.get_pin_at(next_row,next_col)==0))
-        {
-            
-            if(this.get_pin_at(next_row,next_col)==type){
-                pins+=1;
-                continuous_pins+=1;
-                continuous = true;
-                if (continuous && continuous_pins ==this.connect)
-                {
-                    return Infinity
-                }
-            }
-            else{
-                if(this.get_pin_at(next_row,next_col)==0)
-                {
-                    gaps +=1;
-                }
-                continuous_pins = 0;
-                continuous = false;
-            }
-            next_row -= increment_row;
-            next_col -= increment_col;  
-        }
-        //the gaps in the line + the pin should be 4 so that its possible to create a line of 4
-        if(pins+gaps>=this.connect && (pins>1 || gaps>=this.connect-1))
-        {
-            return pins*points_per_pin + gaps*this.gap_point;
-        }
-        return 0
     }
 
     get_pin_at(row, column)

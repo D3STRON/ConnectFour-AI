@@ -10,7 +10,6 @@ var display_board;
 var ParentPlayer;
 var pins = [];
 var turn_of = -1;
-var default_depth = 5;
 
 function setup()
 {
@@ -34,8 +33,8 @@ function mouseClicked() {
         var column = Math.floor((mouseX-display_board.padding)/display_board.unit_size)
         add_pin_at(column)
         console.log(column)
-        var expected_depth = Math.floor(display_board.committed_pins/4) + default_depth;
-        add_pin_at(Player.make_move_minMax(display_board,turn_of,expected_depth));
+        var expected_depth = Math.floor(display_board.committed_pins/4) + ParentPlayer.default_depth;
+        add_pin_at(ParentPlayer.make_move_minMax(display_board,turn_of,expected_depth));
         // print_board(display_board)
     }
 }

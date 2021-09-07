@@ -6,11 +6,15 @@ class Player{
             this.gap_point = ParentPlayer.gap_point;
             this.pin_point = ParentPlayer.pin_point;
             this.center_point = ParentPlayer.center_point;
+            this.pin_point_opponent = ParentPlayer.pin_point_opponent;
+            this.gap_point_opponent = ParentPlayer.gap_point_opponent;
         }
         else{
             this.gap_point = 0.1686881640510813;
             this.pin_point = 5.803639314321643;
             this.center_point = 13.028357709429098;
+            this.pin_point_opponent = 5;
+            this.gap_point_opponent = 0.2;
         }
         this.fitness = 0;
         this.default_depth = 6;
@@ -47,6 +51,16 @@ class Player{
         if(Math.random()<rate)
         {
             this.center_point += randomGaussian(0, 1)
+            console.log(this.center_point)
+        }
+        if(Math.random()<rate)
+        {
+            this.gap_point_opponent += randomGaussian(0, 1)
+            console.log(this.center_point)
+        }
+        if(Math.random()<rate)
+        {
+            this.pin_point_opponent += randomGaussian(0, 1)
             console.log(this.center_point)
         }
     }
@@ -110,14 +124,69 @@ class Player{
         var score_divisor = (Math.abs(Math.floor(board.size/2)-column)+1)
         var score = Math.floor(this.center_point/score_divisor);
         // check socre in horizontal vertical and diagonal directions
-        score += this.check_score(board, column, 1, 1) 
-                    + this.check_score(board, column, 1,0) 
-                        + this.check_score(board, column, -1, 1) 
-                            + this.check_score(board, column, 0, 1); 
+        score += this.check_move_score(board, column, 1, 1) + this.check_block_score(board,column,1,1)
+                + this.check_move_score(board, column, 1,0)
+                + this.check_move_score(board, column, -1, 1) + this.check_block_score(board,column,-1,1)
+                + this.check_move_score(board, column, 0, 1) + this.check_block_score(board,column,0,1);
         return score*playerType;
     }
 
-    check_score(board, column, increment_row, increment_col)
+    check_block_score(board, column, increment_row, increment_col)
+    {
+        var type = -1*board.get_pin_at(board.height_of_column[column]-1,column);
+        var row = board.height_of_column[column]-1;
+        var next_row = row + increment_row*(board.connect-1);
+        var next_col = column + increment_col*(board.connect-1);
+        var pins = 0;
+        var gaps = 0;
+        var score = 0;
+        while(next_row>=0 && next_row<board.size 
+            && next_col>=0 && next_col<board.size 
+                 && (board.get_pin_at(next_row,next_col)==type 
+                    || board.get_pin_at(next_row,next_col)==0))
+        {
+            if(board.get_pin_at(next_row,next_col)==type)
+            {
+                pins+=1;
+            }
+            else{
+                gaps+=1;
+            }
+            next_row -= increment_row;
+            next_col -= increment_col;
+        }
+        if(pins+gaps==board.connect-1 && pins>1)
+        {
+            score+= pins*this.pin_point_opponent + gaps*this.gap_point_opponent;
+        }
+
+        next_row = row - increment_row*(board.connect-1);
+        next_col = column - increment_col*(board.connect-1);
+        pins = 0;
+        gaps = 0;
+        while(next_row>=0 && next_row<board.size 
+            && next_col>=0 && next_col<board.size 
+                 && (board.get_pin_at(next_row,next_col)==type 
+                    || board.get_pin_at(next_row,next_col)==0))
+        {
+            if(board.get_pin_at(next_row,next_col)==type)
+            {
+                pins+=1;
+            }
+            else{
+                gaps+=1;
+            }
+            next_row += increment_row;
+            next_col += increment_col;
+        }
+        if(pins+gaps==board.connect-1 && pins>1)
+        {
+            score+= pins*this.pin_point_opponent + gaps*this.gap_point_opponent;
+        }     
+        return score;
+    }
+
+    check_move_score(board, column, increment_row, increment_col)
     {
         var type =  board.get_pin_at(board.height_of_column[column]-1,column);
         var next_row = board.height_of_column[column]-1;

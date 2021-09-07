@@ -1,18 +1,19 @@
 class Player{
-    constructor(brain)
+    constructor(ParentPlayer)
     {
+        if(ParentPlayer instanceof Player)
+        {   
+            this.gap_point = ParentPlayer.gap_point;
+            this.pin_point = ParentPlayer.pin_point;
+            this.center_point = ParentPlayer.center_point;
+        }
+        else{
+            this.gap_point = 0.1686881640510813;
+            this.pin_point = 5.803639314321643;
+            this.center_point = 13.028357709429098;
+        }
         this.fitness = 0;
-        this.gap_point = 0.2;
-        this.pin_point = 2;
-        this.default_depth = 5;
-        if(brain instanceof NeuralNetwork)
-        {
-            this.brain= brain.copy()
-        }
-        else
-        {
-            this.brain = new NeuralNetwork(board_size*board_size,board_size);
-        }
+        this.default_depth = 6;
     }
     
     make_move_NN(board)
@@ -30,26 +31,41 @@ class Player{
         return max_index;
     }
 
-    make_move_minMax(board, depth, expectedDepth)
+    mutate(rate)
+    {
+
+        if(Math.random()<rate)
+        {
+            this.gap_point += randomGaussian(0, 0.1)
+            console.log(this.gap_point)
+        }
+        if(Math.random()<rate)
+        {
+            this.pin_point += randomGaussian(0, 1)
+            console.log(this.pin_point)
+        }
+        if(Math.random()<rate)
+        {
+            this.center_point += randomGaussian(0, 1)
+            console.log(this.center_point)
+        }
+    }
+
+    make_move_minMax(playerType,board, depth, expectedDepth)
     {
         var max = -Infinity
         var min = Infinity
         var output = 0;
         for(let i=0;i<board.size;i++)
         {
-            var playerType = 1;
             var score = 0;
-            if(depth%2==0)
-            {
-                playerType = -1;
-            }
             score += this.evaluate_move(playerType,board,i);
             if(score == playerType*Infinity)
             {
                 board.remove_pin(i);
                 if(depth==1)
                 {
-                    return i;
+                    return [i,'won'];
                 }
                 return score;
             }
@@ -57,7 +73,7 @@ class Player{
                 
                 if(depth+1<=expectedDepth)
                 {
-                    score += this.make_move_minMax(board, depth+1, expectedDepth)
+                    score += this.make_move_minMax(playerType*-1,board, depth+1, expectedDepth)
                 }
                 board.remove_pin(i);
                 if(playerType>0 && score>=max)
@@ -92,7 +108,7 @@ class Player{
         //lesser the (chosen_column- Center_column) lesser will be the score divisor
         //hence more will be score
         var score_divisor = (Math.abs(Math.floor(board.size/2)-column)+1)
-        var score = Math.floor(board.size/score_divisor);
+        var score = Math.floor(this.center_point/score_divisor);
         // check socre in horizontal vertical and diagonal directions
         score += this.check_score(board, column, 1, 1) 
                     + this.check_score(board, column, 1,0) 

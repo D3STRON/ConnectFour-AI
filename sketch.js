@@ -1,7 +1,7 @@
 const board_size = 7;
-const max_generations = 1000;
-const offspring_per_generation = 1024;
-const mr = 0.1;
+const max_generations = 100;
+const offspring_per_generation = 128;
+const mr = 0.15;
 const connect = 4;
 const min_max_depth = 5;
 const points_per_pin = 2;
@@ -34,13 +34,17 @@ function mouseClicked() {
         add_pin_at(column)
         console.log(column)
         var expected_depth = Math.floor(display_board.committed_pins/4) + ParentPlayer.default_depth;
-        add_pin_at(ParentPlayer.make_move_minMax(display_board,turn_of,expected_depth));
+        add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth));
         // print_board(display_board)
     }
 }
 
 function add_pin_at(column)
 {
+    if(column.length==2)
+    {
+        column = column[0];
+    }
     var row = display_board.height_of_column[column]
     var pinX = column*display_board.unit_size+
         display_board.padding + display_board.unit_size/2;  
@@ -61,8 +65,8 @@ function train()
         var players = []
         for(let i =0;i<offspring_per_generation;i++)
         {
-            players.push(new Player(ParentPlayer.brain));
-            players[i].brain.mutate(mr);
+            players.push(new Player(ParentPlayer));
+            players[i].mutate(mr);
         }
         var matches = offspring_per_generation/2
         while(matches>=1)
@@ -72,16 +76,16 @@ function train()
             { 
                 var board = new Board();
                 new_players.push(play(players,board));
+                console.log("Generation",generation,"stage", matches, "game",i,"done");
             }
             players = new_players;
             matches/=2;
         }
         ParentPlayer = players.pop();
-        console.log("Generation",generation);
         generation++
     }
 
-    console.log(ParentPlayer.brain);
+    console.log(ParentPlayer);
 
     var board = new Board();
     play([ParentPlayer,ParentPlayer],board);
@@ -121,16 +125,20 @@ function undo_move()
 function play(players, board)
 {
     var players_this_game = [players.pop(), players.pop()];
-    var game_status = 0;
-    var i = 1
-    while(game_status<=0 && i<=board_size*board_size)
+    var turn_of = 1
+    while( board.committed_pins<board_size*board_size)
     {
-        game_status = board.add_and_check(i%2+1,players_this_game[i%2].make_move_NN(board));
-        i+=1; 
+        var i = board.committed_pins;
+        var expected_depth = players_this_game[i%2].default_depth;
+        var column = players_this_game[i%2].make_move_minMax(turn_of,board,1,expected_depth);
+        if(column.length==2)
+        {
+            return players_this_game[i%2];
+        }
+        if(board.commit_move(turn_of,column)==true)
+        {
+            turn_of *= -1;
+        }
     }
-    if(game_status<=0)
-    {
-        return players_this_game[0]
-    }
-    return players_this_game[game_status-1];
+    return players_this_game[0];
 }

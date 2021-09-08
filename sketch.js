@@ -33,7 +33,7 @@ function mouseClicked() {
         var column = Math.floor((mouseX-display_board.padding)/display_board.unit_size)
         add_pin_at(column)
         console.log(column)
-        var expected_depth = Math.floor(display_board.committed_pins/7)*1.5 + ParentPlayer.default_depth;
+        var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;
         add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth));
         // print_board(display_board)
     }

@@ -15,6 +15,11 @@ class Player{
             this.pin_point = 4.698781152240304;
             this.center_point = 14.87158015030069;
             this.pin_point_opponent = 6.557380245307205;
+            //values I started with
+            // this.gap_point = 0.3;
+            // this.pin_point = 2;
+            // this.center_point = 7;
+            // this.pin_point_opponent = 2;
         }
         this.fitness = 0;
         this.default_depth = 6;

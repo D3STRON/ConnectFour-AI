@@ -27,6 +27,12 @@ function draw()
     }
 }
 
+function play_first()
+{
+    var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;
+    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth));
+}
+
 function mouseClicked() {
     if(mouseX>display_board.padding && mouseX<display_board.padding +display_board.display_size
         && mouseY>display_board.padding && mouseY<display_board.padding+display_board.display_size){

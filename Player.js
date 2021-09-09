@@ -11,10 +11,10 @@ class Player{
         else{
             //these evaluation point were brewed by genetic algo
             //you can start with random values and reach these results
-            this.gap_point = 0.29530133623980565;
-            this.pin_point = 4.698781152240304;
-            this.center_point = 14.87158015030069;
-            this.pin_point_opponent = 6.557380245307205;
+            this.gap_point = 0.8695788137727448;
+            this.pin_point = 10.064977914562904;
+            this.center_point = 7.3622800891045985;
+            this.pin_point_opponent = 4.668159483149056;
             //values I started with
             // this.gap_point = 0.3;
             // this.pin_point = 2;
@@ -22,7 +22,7 @@ class Player{
             // this.pin_point_opponent = 2;
         }
         this.fitness = 0;
-        this.default_depth = 6;
+        this.default_depth = 7;
     }
     
     make_move_NN(board)
@@ -69,45 +69,47 @@ class Player{
     {
         var max = -Infinity
         var min = Infinity
-        var output = 0;
+        var output;
+        var index;
         for(let i=0;i<board.size;i++)
         {
-            var score = 0;
-            score += this.evaluate_move(playerType,board,i);
+            var score = this.evaluate_move(playerType,board,i);
             if(score == playerType*Infinity)
             {
                 board.remove_pin(i);
-                if(depth==1)
-                {
-                    return [i,'won'];
-                }
-                return score;
+                output = score;
+                index = i;
+                break;
             }
             else if(score != -1*playerType*Infinity){
                 
                 if(depth+1<=expectedDepth)
                 {
-                    score += this.make_move_minMax(playerType*-1,board, depth+1, expectedDepth)
+                    score += this.make_move_minMax(playerType*-1,board, depth+1, expectedDepth);
                 }
                 board.remove_pin(i);
-                if(playerType>0 && score>=max)
+                if(score == playerType*Infinity)
+                {
+                    output = score;
+                    index = i;
+                    break;
+                }
+                else if(playerType>0 && score>=max)
                 {
                     max = score;
                     output = score;
-                    if(depth ==1)
-                    {
-                        output = i;
-                    }
+                    index = i;
                 }
                 else if(playerType<0 && score<=min){
                     min = score;
                     output = score;
-                    if(depth ==1)
-                    {
-                        output = i;
-                    }
+                    index = i;
                 }
             }
+        }
+        if(depth==1)
+        {
+            return [index,output];
         }
         return output;
     } 

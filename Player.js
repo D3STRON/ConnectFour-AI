@@ -11,10 +11,10 @@ class Player{
         else{
             //these evaluation point were brewed by genetic algo
             //you can start with random values and reach these results
-            this.gap_point = 0.8695788137727448;
-            this.pin_point = 10.064977914562904;
-            this.center_point = 7.3622800891045985;
-            this.pin_point_opponent = 4.668159483149056;
+            this.gap_point = 1;
+            this.pin_point = 10;
+            this.center_point = 15;
+            this.pin_point_opponent = 5;
             //values I started with
             // this.gap_point = 0.3;
             // this.pin_point = 2;
@@ -50,22 +50,22 @@ class Player{
         }
         if(Math.random()<rate)
         {
-            this.pin_point += randomGaussian(0, 1)
+            this.pin_point += Math.round(randomGaussian(0, 1));
             console.log(this.pin_point)
         }
         if(Math.random()<rate)
         {
-            this.center_point += randomGaussian(0, 1)
+            this.center_point += Math.round(randomGaussian(0, 1));
             console.log(this.center_point)
         }
         if(Math.random()<rate)
         {
-            this.pin_point_opponent += randomGaussian(0, 1)
+            this.pin_point_opponent += Math.round(randomGaussian(0, 1));
             console.log(this.pin_point_opponent)
         }
     }
 
-    make_move_minMax(playerType,board, depth, expectedDepth)
+    make_move_minMax(playerType,board, depth, expectedDepth, al, be)
     {
         var max = -Infinity
         var min = Infinity
@@ -82,10 +82,9 @@ class Player{
                 break;
             }
             else if(score != -1*playerType*Infinity){
-                
-                if(depth+1<=expectedDepth)
+                if(depth<expectedDepth)
                 {
-                    score += this.make_move_minMax(playerType*-1,board, depth+1, expectedDepth);
+                    score += this.make_move_minMax(-1*playerType,board, depth+1, expectedDepth, al,be);
                 }
                 board.remove_pin(i);
                 if(score == playerType*Infinity)
@@ -94,16 +93,22 @@ class Player{
                     index = i;
                     break;
                 }
-                else if(playerType>0 && score>=max)
+                else if(playerType>0)
                 {
-                    max = score;
-                    output = score;
-                    index = i;
+                    if(score>=max)
+                    {
+                        max = score;
+                        output = score;
+                        index = i;
+                    }
                 }
-                else if(playerType<0 && score<=min){
-                    min = score;
-                    output = score;
-                    index = i;
+                else if(playerType<0)
+                {
+                    if(score<=min){
+                        min = score;
+                        output = score;
+                        index = i;
+                    }
                 }
             }
         }
@@ -147,11 +152,10 @@ class Player{
             var player_pins = 0;
             var next_row = outer_row_limit;
             var next_col = outer_col_limit;
-            var sample_array=[];
             for(let j=0;j<board.connect;j++)
             {
                 if(next_row>=0 && next_row<board.size 
-                    && next_col>=0 && next_col<board.size)
+                    && next_col>=0 && next_col<board.size_vertical)
                 {
                     var this_pin = board.get_pin_at(next_row,next_col);
                     if(this_pin==type)
@@ -169,7 +173,6 @@ class Player{
                     else{
                         opponent_pins+=1;
                     }
-                    // sample_array.push(this_pin)
                 }
                 else{
                     break;
@@ -185,7 +188,6 @@ class Player{
             {
                 score += opponent_pins*this.pin_point_opponent;
             }
-            // console.log(sample_array,gaps,player_pins,opponent_pins);
             outer_row_limit-=increment_row;
             outer_col_limit-=increment_col;
         }

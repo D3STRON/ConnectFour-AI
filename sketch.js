@@ -1,4 +1,5 @@
 const board_size = 7;
+const board_vertical_size = 6;
 const max_generations = 100;
 const offspring_per_generation = 128;
 const mr = 0.15;
@@ -29,18 +30,20 @@ function draw()
 
 function play_first()
 {
-    var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;
-    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth));
+    var expected_depth = ParentPlayer.default_depth;
+    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,Infinity,Infinity)[0]);
 }
 
 function mouseClicked() {
     if(mouseX>display_board.padding && mouseX<display_board.padding +display_board.display_size
         && mouseY>display_board.padding && mouseY<display_board.padding+display_board.display_size){
         var column = Math.floor((mouseX-display_board.padding)/display_board.unit_size)
-        add_pin_at(column)
-        console.log(column)
-        var expected_depth = Math.floor(display_board.committed_pins/9)*2 + ParentPlayer.default_depth;
-        add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth)[0]);
+        if(add_pin_at(column)==true)
+        {
+            console.log(column)
+            var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;
+            add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]);
+        }
         // print_board(display_board)
     }
 }
@@ -56,7 +59,9 @@ function add_pin_at(column)
     {
         pins.push(new Pin(pinX, pinY,turn_of));
         turn_of *= -1
+        return true;
     }
+    return false;
 }
 
 function train()
@@ -127,19 +132,19 @@ function undo_move()
 function play(players, board)
 {
     var players_this_game = [players.pop(), players.pop()];
-    var turn_of = 1
+    var turnOf = 1;
     while( board.committed_pins<board_size*board_size)
     {
         var i = board.committed_pins;
         var expected_depth = players_this_game[i%2].default_depth;
-        var column = players_this_game[i%2].make_move_minMax(turn_of,board,1,expected_depth);
-        if(column[1]==Infinity*turn_of)
+        var column = players_this_game[i%2].make_move_minMax(turnOf,board,1,expected_depth,-Infinity,Infinity);
+        if(column[1]==Infinity*turnOf)
         {
             return players_this_game[i%2];
         }
-        if(board.commit_move(turn_of,column[0])==true)
+        if(board.commit_move(turnOf,column[0])==true)
         {
-            turn_of *= -1;
+            turnOf *= -1;
         }
     }
     return players_this_game[0];

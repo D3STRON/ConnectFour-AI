@@ -13,7 +13,7 @@ class Player{
             //you can start with random values and reach these results
             this.gap_point = 1;
             this.pin_point = 10;
-            this.center_point = 15;
+            this.center_point = 7;
             this.pin_point_opponent = 5;
             //values I started with
             // this.gap_point = 0.3;
@@ -154,8 +154,8 @@ class Player{
             var next_col = outer_col_limit;
             for(let j=0;j<board.connect;j++)
             {
-                if(next_row>=0 && next_row<board.size 
-                    && next_col>=0 && next_col<board.size_vertical)
+                if(next_row>=0 && next_row<board.size
+                    && next_col>=0 && next_col<board.size)
                 {
                     var this_pin = board.get_pin_at(next_row,next_col);
                     if(this_pin==type)

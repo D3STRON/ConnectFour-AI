@@ -31,7 +31,7 @@ function draw()
 function play_first()
 {
     var expected_depth = ParentPlayer.default_depth;
-    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,Infinity,Infinity)[0]);
+    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,Infinity,Infinity,0)[0]);
 }
 
 function mouseClicked() {
@@ -41,8 +41,8 @@ function mouseClicked() {
         if(add_pin_at(column)==true)
         {
             console.log(column)
-            var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;
-            add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]);
+            var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;;
+            add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity,0)[0]);
         }
         // print_board(display_board)
     }

@@ -65,7 +65,7 @@ class Player{
         }
     }
 
-    make_move_minMax(playerType,board, depth, expectedDepth, al, be)
+    make_move_minMax(playerType,board, depth, expectedDepth, al, be, prev_score)
     {
         var max = -Infinity
         var min = Infinity
@@ -73,7 +73,7 @@ class Player{
         var index;
         for(let i=0;i<board.size;i++)
         {
-            var score = this.evaluate_move(playerType,board,i);
+            var score = this.evaluate_move(playerType,board,i) + prev_score;
             if(score == playerType*Infinity)
             {
                 board.remove_pin(i);
@@ -84,7 +84,7 @@ class Player{
             else if(score != -1*playerType*Infinity){
                 if(depth<expectedDepth)
                 {
-                    score += this.make_move_minMax(-1*playerType,board, depth+1, expectedDepth, al,be);
+                    score = this.make_move_minMax(-1*playerType,board, depth+1, expectedDepth, al,be ,score);
                 }
                 board.remove_pin(i);
                 if(score == playerType*Infinity)
@@ -95,6 +95,7 @@ class Player{
                 }
                 else if(playerType>0)
                 {
+                    al = Math.max(al,score);
                     if(score>=max)
                     {
                         max = score;
@@ -104,6 +105,7 @@ class Player{
                 }
                 else if(playerType<0)
                 {
+                    be = Math.min(be,score);
                     if(score<=min){
                         min = score;
                         output = score;

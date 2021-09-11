@@ -22,7 +22,7 @@ class Player{
             // this.pin_point_opponent = 2;
         }
         this.fitness = 0;
-        this.default_depth = 7;
+        this.default_depth = 8;
     }
     
     make_move_NN(board)
@@ -153,7 +153,7 @@ class Player{
         var outer_row_limit = row + increment_row*(board.connect-1);
         var outer_col_limit = column + increment_col*(board.connect-1);
         var type = board.get_pin_at(row,column);
-        var score = 0;
+        var score = board.connect-row;
         for(let i=0;i<board.connect;i++)
         { 
             var gaps = 0;

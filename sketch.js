@@ -133,7 +133,7 @@ function play(players, board)
 {
     var players_this_game = [players.pop(), players.pop()];
     var turnOf = 1;
-    while( board.committed_pins<board_size*board_size)
+    while( board.committed_pins<board_size*board_vertical_size)
     {
         var i = board.committed_pins;
         var expected_depth = players_this_game[i%2].default_depth;

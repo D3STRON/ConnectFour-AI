@@ -55,7 +55,7 @@ class Board{
     //this is just for min max scenario checking
     put_pin(playerID,column)
     {
-        if(this.height_of_column[column]<this.size)
+        if(this.height_of_column[column]<this.size_vertical)
         {
             var row = this.height_of_column[column];
             this.board_array.put(this.map_coordinates(row,column),0,playerID);
@@ -82,7 +82,7 @@ class Board{
     // this function commits the move to the board
     commit_move(playerID,column)
     {
-        if(this.height_of_column[column]<this.size)
+        if(this.height_of_column[column]<this.size_vertical)
         {
             var row = this.height_of_column[column];
             this.board_array.put(this.map_coordinates(row,column),0,playerID);

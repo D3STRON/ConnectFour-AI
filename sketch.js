@@ -1,5 +1,5 @@
 const board_size = 7;
-const board_vertical_size = 6;
+const board_vertical_size = 7;
 const max_generations = 100;
 const offspring_per_generation = 128;
 const mr = 0.15;
@@ -41,8 +41,8 @@ function mouseClicked() {
         if(add_pin_at(column)==true)
         {
             console.log(column)
-            var expected_depth = Math.floor(display_board.committed_pins/9) + ParentPlayer.default_depth;;
-            add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]);
+            var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;
+            console.log(add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]));
         }
         // print_board(display_board)
     }

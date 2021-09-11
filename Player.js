@@ -69,21 +69,23 @@ class Player{
     {
         var max = -Infinity
         var min = Infinity
+        //output is what the function will finally give it could be 
+        //minimum of maximum value depending upon the player type
         var output = -1*Infinity*playerType;
         var index;
         var available_column;
         for(let i=0;i<board.size;i++)
         {
-            var score = this.evaluate_move(playerType,board,i) + prev_score;
-            if(score == playerType*Infinity)
-            {
-                board.remove_pin(i);
-                output = score;
-                index = i;
-                break;
-            }
-            else if(score != -1*playerType*Infinity){
+            if(board.put_pin(playerType,i)==true){
                 available_column = i;
+                var score = this.evaluate_move(board,i) + prev_score;
+                if(score == playerType*Infinity)
+                {
+                    board.remove_pin(i);
+                    output = score;
+                    index = i;
+                    break;
+                }
                 if(depth<expectedDepth)
                 {
                     score = this.make_move_minMax(-1*playerType,board, depth+1, expectedDepth, al,be ,score);
@@ -114,10 +116,10 @@ class Player{
                         index = i;
                     }
                 }
-            }
-            if(al>=be)
-            {
-                break;
+                if(al>=be)
+                {
+                    break;
+                }
             }
         }
         if(depth==1)
@@ -128,12 +130,8 @@ class Player{
         return output;
     } 
 
-    evaluate_move(playerType, board, column)
+    evaluate_move(board, column)
     {
-        if(board.put_pin(playerType,column)==false){
-
-            return -1*playerType*Infinity;
-        }
         //the closer to the center the more the score it gets
         //lesser the (chosen_column- Center_column) lesser will be the score divisor
         //hence more will be score
@@ -144,7 +142,7 @@ class Player{
                 + this.check_move_score(board, column, 1,0)
                 + this.check_move_score(board, column, -1, 1) 
                 + this.check_move_score(board, column, 0, 1);
-        return score*playerType;
+        return score;
     }
 
     check_move_score(board, column, increment_row, increment_col)
@@ -153,6 +151,7 @@ class Player{
         var outer_row_limit = row + increment_row*(board.connect-1);
         var outer_col_limit = column + increment_col*(board.connect-1);
         var type = board.get_pin_at(row,column);
+        // the lower the move made the better chances to concure the column
         var score = board.connect-row;
         for(let i=0;i<board.connect;i++)
         { 
@@ -172,7 +171,7 @@ class Player{
                         player_pins +=1;
                         if(player_pins==board.connect)
                         {
-                            return Infinity;
+                            return Infinity*type;
                         }
                     }
                     else if(this_pin==0)
@@ -200,6 +199,6 @@ class Player{
             outer_row_limit-=increment_row;
             outer_col_limit-=increment_col;
         }
-        return score;
+        return score*type;
     }
 }

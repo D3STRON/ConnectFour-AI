@@ -12,19 +12,10 @@ class Player{
         this.default_depth = 7;
     }
     
-    make_move_NN(board)
+    board_evaluation_NN(board)
     {
         let output = this.brain.feedforward(board.board_array);
-        let max = -Infinity;
-        let max_index = 0;
-        for(let i =0;i<board.size;i++){
-            if(board.height_of_column[i]<board.size && output.get(i,0)>max){
-                
-                max = output.get(i,0);
-                max_index = i;
-            }
-        }
-        return max_index;
+        return output*10;
     }
 
     mutate(rate)
@@ -201,7 +192,6 @@ class Player{
                 score += this.check_linear_evaluation(board, row, i, 1, 1);
                 score += this.check_linear_evaluation(board, row, i, -1, 1);
                 row+=1;
-                // console.log(row)
             }
         }
         return score;
@@ -245,13 +235,13 @@ class Player{
             {
                 score += pinA + pinB;
             }
-            else if(pinA==1 && pinB==2)
+            else if(pinB>1)
             {
-                score += pinA;
+                score -= pinB;
             }
-            else if(pinA==1 && pinB==2)
+            else if(pinA>1)
             {   
-                score += pinB;
+                score -= pinA;
             }
             outer_row_limit-=increment_row;
             outer_col_limit-=increment_col;

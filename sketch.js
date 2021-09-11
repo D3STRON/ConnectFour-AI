@@ -4,7 +4,6 @@ const max_generations = 100;
 const offspring_per_generation = 128;
 const mr = 0.15;
 const connect = 4;
-const min_max_depth = 5;
 const points_per_pin = 2;
 const pin_radius = 60;
 var display_board;
@@ -44,7 +43,6 @@ function mouseClicked() {
             var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;
             add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]);
         }
-        // print_board(display_board)
     }
 }
 
@@ -133,7 +131,7 @@ function play(players, board)
 {
     var players_this_game = [players.pop(), players.pop()];
     var turnOf = 1;
-    while( board.committed_pins<board_size*board_size)
+    while( board.committed_pins<board_size*board_vertical_size)
     {
         var i = board.committed_pins;
         var expected_depth = players_this_game[i%2].default_depth;

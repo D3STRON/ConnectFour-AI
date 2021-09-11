@@ -3,10 +3,7 @@ class Player{
     {
         if(ParentPlayer instanceof Player)
         {   
-            this.gap_point = ParentPlayer.gap_point;
-            this.pin_point = ParentPlayer.pin_point;
             this.center_point = ParentPlayer.center_point;
-            this.pin_point_opponent = ParentPlayer.pin_point_opponent;
         }
         else{
             this.center_point = [0,1,3.5,7,3.5,1,0];
@@ -59,13 +56,15 @@ class Player{
     {
         var max = -Infinity
         var min = Infinity
-        var output;
+        var output = -1*Infinity*playerType;
         var index;
+        var available_column;
         for(let i=0;i<board.size;i++)
         {
             var score;
             if(board.put_pin(playerType,i)==true)
             {
+                available_column = i;
                 if(this.is_winning_move(board, i)==true)
                 {
                     // print_board(board)
@@ -94,7 +93,7 @@ class Player{
                 if(playerType>0)
                 {
                     al = Math.max(al,score);
-                    if(score>=max)
+                    if(score>max)
                     {
                         max = score;
                         output = score;
@@ -104,21 +103,22 @@ class Player{
                 else if(playerType<0)
                 {
                     be = Math.min(be,score);
-                    if(score<=min){
+                    if(score<min){
                         min = score;
                         output = score;
                         index = i;
                     }
                 }
                 // console.log('alpha',al,'beta',be)
-                // if(al>=be)
-                //    { 
-                //     //    console.log('pruned here');
-                //        break;}
+                if(al>=be)
+                   { 
+                    //    console.log('pruned here');
+                       break;}
             }
         }
         if(depth==1)
         {
+            index = index===undefined?available_column:index;
             return [index,output];
         }
         return output;
@@ -188,7 +188,7 @@ class Player{
             var right = i+1;
             var row = board.height_of_column[i];
             while(
-                row>0 && row<board.size &&
+                row>0 && row<board.size_vertical &&
                     ((left>=0 && board.get_pin_at(row,left)!=0)
                 ||  (right<board.size && board.get_pin_at(row,right)!=0)
                 ||  (right<board.size && board.get_pin_at(row-1,right)!=0)
@@ -218,21 +218,19 @@ class Player{
             var pinB = 0;
             var next_row = outer_row_limit;
             var next_col = outer_col_limit;
-            var sample =[]
             for(let j=0;j<board.connect;j++)
             {
-                if(next_row>=0 && next_row<board.size
+                if(next_row>=0 && next_row<board.size_vertical
                     && next_col>=0 && next_col<board.size)
                 {
                     var this_pin = board.get_pin_at(next_row,next_col);
-                    sample.push(this_pin);
                     if(this_pin==1)
                     {
-                        pinA +=this_pin //+ this.center_point[next_col]*this_pin;
+                        pinA +=this_pin + this.center_point[next_col]*this_pin;
                     }
                     if(this_pin==-1)
                     {
-                        pinB +=this_pin //+ this.center_point[next_col]*this_pin;
+                        pinB +=this_pin + this.center_point[next_col]*this_pin;
                     }
                 }
                 else{
@@ -243,7 +241,6 @@ class Player{
                 next_row-=increment_row;
                 next_col-=increment_col;
             }
-            // console.log(sample);
             if(pinA==0 || pinB==0)
             {
                 score += pinA + pinB;

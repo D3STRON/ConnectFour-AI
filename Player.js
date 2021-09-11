@@ -216,11 +216,11 @@ class Player{
                     var this_pin = board.get_pin_at(next_row,next_col);
                     if(this_pin==1)
                     {
-                        pinA +=this_pin + this.center_point[next_col]*this_pin;
+                        pinA +=this_pin;
                     }
                     if(this_pin==-1)
                     {
-                        pinB +=this_pin + this.center_point[next_col]*this_pin;
+                        pinB +=this_pin;
                     }
                 }
                 else{

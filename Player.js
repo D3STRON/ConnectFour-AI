@@ -13,7 +13,7 @@ class Player{
             //you can start with random values and reach these results
             this.gap_point = 1;
             this.pin_point = 10;
-            this.center_point = [0,1,3.5,7,3.5,1,0];
+            this.center_point = 7;
             this.pin_point_opponent = 5;
             //values I started with
             // this.gap_point = 0.3;
@@ -65,7 +65,7 @@ class Player{
         }
     }
 
-    make_move_minMax(playerType,board, depth, expectedDepth, al, be)
+    make_move_minMax(playerType,board, depth, expectedDepth, al, be, prev_score)
     {
         var max = -Infinity
         var min = Infinity
@@ -73,27 +73,19 @@ class Player{
         var index;
         for(let i=0;i<board.size;i++)
         {
-            var score;
-            if(board.put_pin(playerType,i)==true)
+            var score = this.evaluate_move(playerType,board,i) + prev_score;
+            if(score == playerType*Infinity)
             {
-                if(this.is_winning_move(board, i)==true)
-                {
-                    // print_board(board)
-                    // console.log('depth',depth,'move',i,'score',Infinity*playerType);
-                    board.remove_pin(i);
-                    index = i;
-                    output = Infinity*playerType;
-                    break;
-                }
+                board.remove_pin(i);
+                output = score;
+                index = i;
+                break;
+            }
+            else if(score != -1*playerType*Infinity){
                 if(depth<expectedDepth)
                 {
-                    score = this.make_move_minMax(playerType*-1,board,depth+1,expectedDepth,al,be);
+                    score = this.make_move_minMax(-1*playerType,board, depth+1, expectedDepth, al,be ,score);
                 }
-                else{
-                    score = this.board_evaluation(board);
-                }
-                // print_board(board)
-                // console.log('depth',depth,'move',i,'score',score);
                 board.remove_pin(i);
                 if(score == playerType*Infinity)
                 {
@@ -101,7 +93,7 @@ class Player{
                     index = i;
                     break;
                 }
-                if(playerType>0)
+                else if(playerType>0)
                 {
                     al = Math.max(al,score);
                     if(score>=max)
@@ -120,11 +112,6 @@ class Player{
                         index = i;
                     }
                 }
-                // console.log('alpha',al,'beta',be)
-                // if(al>=be)
-                //    { 
-                //     //    console.log('pruned here');
-                //        break;}
             }
         }
         if(depth==1)
@@ -134,31 +121,36 @@ class Player{
         return output;
     } 
 
-    is_winning_move(board, column)
+    evaluate_move(playerType, board, column)
     {
-        // check winning move along all the diagonals around the move
-        switch(true){
-            case this.check_connections(board, column, 1, 1): 
-                return true;
-            case this.check_connections(board, column, 1,0):
-                return true
-            case this.check_connections(board, column, -1, 1):
-                return true; 
-            case this.check_connections(board, column, 0, 1):
-                return true;
+        if(board.put_pin(playerType,column)==false){
+
+            return -1*playerType*Infinity;
         }
-        return false;
+        //the closer to the center the more the score it gets
+        //lesser the (chosen_column- Center_column) lesser will be the score divisor
+        //hence more will be score
+        var score_divisor = (Math.abs(Math.floor(board.size/2)-column)+1)
+        var score = Math.floor(this.center_point/score_divisor);
+        // check socre in horizontal vertical and diagonal directions
+        score += this.check_move_score(board, column, 1, 1) 
+                + this.check_move_score(board, column, 1,0)
+                + this.check_move_score(board, column, -1, 1) 
+                + this.check_move_score(board, column, 0, 1);
+        return score*playerType;
     }
 
-    check_connections(board, column, increment_row, increment_col)
+    check_move_score(board, column, increment_row, increment_col)
     {
-        // checks connections 4 move to left or right
         var row = board.height_of_column[column]-1;
         var outer_row_limit = row + increment_row*(board.connect-1);
         var outer_col_limit = column + increment_col*(board.connect-1);
         var type = board.get_pin_at(row,column);
+        var score = 0;
         for(let i=0;i<board.connect;i++)
-        {
+        { 
+            var gaps = 0;
+            var opponent_pins = 0;
             var player_pins = 0;
             var next_row = outer_row_limit;
             var next_col = outer_col_limit;
@@ -173,9 +165,16 @@ class Player{
                         player_pins +=1;
                         if(player_pins==board.connect)
                         {
-                            return true;
+                            return Infinity;
                         }
                     }
+                    else if(this_pin==0)
+                    {
+                        gaps+=1;
+                    }
+                    else{
+                        opponent_pins+=1;
+                    }
                 }
                 else{
                     break;
@@ -183,87 +182,13 @@ class Player{
                 next_row-=increment_row;
                 next_col-=increment_col;
             }
-            outer_row_limit-=increment_row;
-            outer_col_limit-=increment_col;
-        }
-        return false;
-    }
-
-    board_evaluation(board)
-    {
-        var score =0;
-        for(let i =0;i<board.size ;i++)
-        {
-            var left = i-1;
-            var right = i+1;
-            var row = board.height_of_column[i];
-            while(
-                    (left>=0 && row>=0 && row<board_vertical_size && board.get_pin_at(row,left)!=0)
-                ||  (right<board.size && row>=0 && row<board_vertical_size && board.get_pin_at(row,right)!=0)
-                ||  (right<board.size && row>0 && row<board_vertical_size && board.get_pin_at(row-1,right)!=0)
-                ||  (left>=0 && row>0 && row<board_vertical_size && board.get_pin_at(row-1,left)!=0)
-                ||  (row>0 && row<board_vertical_size && board.get_pin_at(row-1,i)!=0)
-            )
+            if(player_pins+gaps==board.connect)
             {
-                score += this.check_linear_evaluation(board, row, i, 0, 1);
-                score += this.check_linear_evaluation(board, row, i, 1, 0);
-                score += this.check_linear_evaluation(board, row, i, 1, 1);
-                score += this.check_linear_evaluation(board, row, i, -1, 1);
-                row+=1;
-                // console.log(row)
+                score += player_pins*this.pin_point + gaps*this.gap_point;
             }
-        }
-        return score;
-    }
-
-    check_linear_evaluation(board, row, column, increment_row, increment_col)
-    {
-        var outer_row_limit = row + increment_row*(board.connect-1);
-        var outer_col_limit = column + increment_col*(board.connect-1);
-        var score =0;
-        for(let i=0;i<board.connect;i++)
-        {
-            var pinA = 0;
-            var pinB = 0;
-            var next_row = outer_row_limit;
-            var next_col = outer_col_limit;
-            var sample =[]
-            for(let j=0;j<board.connect;j++)
+            else if(player_pins==1)
             {
-                if(next_row>=0 && next_row<board.size
-                    && next_col>=0 && next_col<board.size)
-                {
-                    var this_pin = board.get_pin_at(next_row,next_col);
-                    sample.push(this_pin);
-                    if(this_pin==1)
-                    {
-                        pinA +=this_pin //+ this.center_point[next_col]*this_pin;
-                    }
-                    if(this_pin==-1)
-                    {
-                        pinB +=this_pin //+ this.center_point[next_col]*this_pin;
-                    }
-                }
-                else{
-                    pinA = 0;
-                    pinB = 0;
-                    break;
-                }
-                next_row-=increment_row;
-                next_col-=increment_col;
-            }
-            // console.log(sample);
-            if(pinA==0 || pinB==0)
-            {
-                score += pinA + pinB;
-            }
-            else if(pinA==1 && pinB==2)
-            {
-                score += pinA;
-            }
-            else if(pinA==1 && pinB==2)
-            {   
-                score += pinB;
+                score += opponent_pins*this.pin_point_opponent;
             }
             outer_row_limit-=increment_row;
             outer_col_limit-=increment_col;

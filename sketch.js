@@ -1,5 +1,5 @@
 const board_size = 7;
-const board_vertical_size = 7;
+const board_vertical_size = 6;
 const max_generations = 100;
 const offspring_per_generation = 128;
 const mr = 0.15;
@@ -137,7 +137,7 @@ function play(players, board)
     {
         var i = board.committed_pins;
         var expected_depth = players_this_game[i%2].default_depth;
-        var column = players_this_game[i%2].make_move_minMax(turnOf,board,1,expected_depth,-Infinity,Infinity);
+        var column = players_this_game[i%2].make_move_minMax(turnOf,board,1,expected_depth,-Infinity,Infinity,0);
         if(column[1]==Infinity*turnOf)
         {
             return players_this_game[i%2];

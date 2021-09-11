@@ -69,8 +69,9 @@ class Player{
     {
         var max = -Infinity
         var min = Infinity
-        var output;
+        var output = -1*Infinity*playerType;
         var index;
+        var available_column;
         for(let i=0;i<board.size;i++)
         {
             var score = this.evaluate_move(playerType,board,i) + prev_score;
@@ -82,6 +83,7 @@ class Player{
                 break;
             }
             else if(score != -1*playerType*Infinity){
+                available_column = i;
                 if(depth<expectedDepth)
                 {
                     score = this.make_move_minMax(-1*playerType,board, depth+1, expectedDepth, al,be ,score);
@@ -96,7 +98,7 @@ class Player{
                 else if(playerType>0)
                 {
                     al = Math.max(al,score);
-                    if(score>=max)
+                    if(score>max)
                     {
                         max = score;
                         output = score;
@@ -106,16 +108,21 @@ class Player{
                 else if(playerType<0)
                 {
                     be = Math.min(be,score);
-                    if(score<=min){
+                    if(score<min){
                         min = score;
                         output = score;
                         index = i;
                     }
                 }
             }
+            if(al>=be)
+            {
+                break;
+            }
         }
         if(depth==1)
         {
+            index = index===undefined?available_column:index;
             return [index,output];
         }
         return output;

@@ -135,14 +135,18 @@ class Player{
         //the closer to the center the more the score it gets
         //lesser the (chosen_column- Center_column) lesser will be the score divisor
         //hence more will be score
+        var row = board.height_of_column[column]-1;
         var score_divisor = (Math.abs(Math.floor(board.size/2)-column)+1)
         var score = Math.floor(this.center_point/score_divisor);
+        score_divisor = (Math.abs(Math.floor(board.size_vertical/2)-row)+1)
+        score += Math.floor(this.center_point/score_divisor);
+        var type = board.get_pin_at(row,column);
         // check socre in horizontal vertical and diagonal directions
         score += this.check_move_score(board, column, 1, 1) 
                 + this.check_move_score(board, column, 1,0)
                 + this.check_move_score(board, column, -1, 1) 
                 + this.check_move_score(board, column, 0, 1);
-        return score;
+        return score*type;
     }
 
     check_move_score(board, column, increment_row, increment_col)
@@ -151,8 +155,7 @@ class Player{
         var outer_row_limit = row + increment_row*(board.connect-1);
         var outer_col_limit = column + increment_col*(board.connect-1);
         var type = board.get_pin_at(row,column);
-        // the lower the move made the better chances to concure the column
-        var score = board.connect-row;
+        var score =0;
         for(let i=0;i<board.connect;i++)
         { 
             var gaps = 0;
@@ -162,7 +165,7 @@ class Player{
             var next_col = outer_col_limit;
             for(let j=0;j<board.connect;j++)
             {
-                if(next_row>=0 && next_row<board.size
+                if(next_row>=0 && next_row<board.size_vertical
                     && next_col>=0 && next_col<board.size)
                 {
                     var this_pin = board.get_pin_at(next_row,next_col);
@@ -171,7 +174,7 @@ class Player{
                         player_pins +=1;
                         if(player_pins==board.connect)
                         {
-                            return Infinity*type;
+                            return Infinity;
                         }
                     }
                     else if(this_pin==0)
@@ -199,6 +202,6 @@ class Player{
             outer_row_limit-=increment_row;
             outer_col_limit-=increment_col;
         }
-        return score*type;
+        return score;
     }
 }

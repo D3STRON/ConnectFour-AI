@@ -11,10 +11,10 @@ class Player{
         else{
             //these evaluation point were brewed by genetic algo
             //you can start with random values and reach these results
-            this.gap_point = 1;
-            this.pin_point = 10;
-            this.center_point = 7;
-            this.pin_point_opponent = 5;
+            this.gap_point = 2;
+            this.pin_point = 9;
+            this.center_point = 5;
+            this.pin_point_opponent = 10;
             //values I started with
             // this.gap_point = 0.3;
             // this.pin_point = 2;
@@ -45,22 +45,22 @@ class Player{
 
         if(Math.random()<rate)
         {
-            this.gap_point += randomGaussian(0, 0.1)
+            this.gap_point += randomGaussian(0, 0.5)
             console.log(this.gap_point)
         }
         if(Math.random()<rate)
         {
-            this.pin_point += Math.round(randomGaussian(0, 1));
+            this.pin_point += Math.round(randomGaussian(0, 2));
             console.log(this.pin_point)
         }
         if(Math.random()<rate)
         {
-            this.center_point += Math.round(randomGaussian(0, 1));
+            this.center_point += Math.round(randomGaussian(0, 2));
             console.log(this.center_point)
         }
         if(Math.random()<rate)
         {
-            this.pin_point_opponent += Math.round(randomGaussian(0, 1));
+            this.pin_point_opponent += Math.round(randomGaussian(0, 2));
             console.log(this.pin_point_opponent)
         }
     }
@@ -74,7 +74,8 @@ class Player{
         var output = -1*Infinity*playerType;
         var index;
         var available_column;
-        for(let i=0;i<board.size;i++)
+        //we order the moves around the center 3,2,4,1,5,0,6
+        for(let j=0, direction=1, i=3;j<board.size;j++, direction*=-1, i = i + direction*j)
         {
             if(board.put_pin(playerType,i)==true){
                 available_column = i;
@@ -141,7 +142,7 @@ class Player{
         score_divisor = (Math.abs(Math.floor(board.size_vertical/2)-row)+1)
         score += Math.floor(this.center_point/score_divisor);
         var type = board.get_pin_at(row,column);
-        // check socre in horizontal vertical and diagonal directions
+        // check socre in horizontal vertical and diagonal directions around the move
         score += this.check_move_score(board, column, 1, 1) 
                 + this.check_move_score(board, column, 1,0)
                 + this.check_move_score(board, column, -1, 1) 
@@ -197,6 +198,7 @@ class Player{
             }
             else if(player_pins==1)
             {
+                //player gets thic point for eleminating the opponents chances along this file
                 score += opponent_pins*this.pin_point_opponent;
             }
             outer_row_limit-=increment_row;

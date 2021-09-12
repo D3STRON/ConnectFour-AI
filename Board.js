@@ -5,6 +5,7 @@ class Board{
         this.size = board_size;
         this.size_vertical = board_vertical_size;
         this.height_of_column = new Array(board_size).fill(0);
+        this.available_columns = this.size;
         this.board_array = new Matrix(this.size*this.size,1);
         this.connect = connect;
         this.display_size = this.size*this.size*10;
@@ -48,6 +49,10 @@ class Board{
             this.height_of_column[column]--;
             var row = this.height_of_column[column];
             this.board_array.put(this.map_coordinates(row,column),0,0);
+            if(this.height_of_column[column]==this.size_vertical-1)
+            {
+                this.available_columns+=1;
+            }
             return true;
         }
         return false;
@@ -60,6 +65,10 @@ class Board{
             var row = this.height_of_column[column];
             this.board_array.put(this.map_coordinates(row,column),0,playerID);
             this.height_of_column[column]++;
+            if(this.height_of_column[column]==this.size_vertical)
+            {
+                this.available_columns-=1;
+            }
             return true;
         }
         return false;
@@ -74,6 +83,10 @@ class Board{
             var row = this.height_of_column[column];
             this.board_array.put(this.map_coordinates(row,column),0,0);
             this.committed_pins--;
+            if(this.height_of_column[column]==this.size_vertical-1)
+            {
+                this.available_columns+=1;
+            }
             return true;
         }
         return false;
@@ -88,6 +101,10 @@ class Board{
             this.board_array.put(this.map_coordinates(row,column),0,playerID);
             this.height_of_column[column]++;
             this.committed_pins++;
+            if(this.height_of_column[column]==this.size_vertical)
+            {
+                this.available_columns-=1;
+            }
             return true;
         }
         return false;

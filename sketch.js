@@ -1,9 +1,10 @@
 const board_size = 7;
-const board_vertical_size = 7;
+const board_vertical_size = 6;
 const max_generations = 100;
 const offspring_per_generation = 128;
-const mr = 0.15;
+const mr = 0.1;
 const connect = 4;
+const min_max_depth = 5;
 const points_per_pin = 2;
 const pin_radius = 60;
 var display_board;
@@ -30,7 +31,7 @@ function draw()
 function play_first()
 {
     var expected_depth = ParentPlayer.default_depth;
-    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,Infinity,Infinity,0)[0]);
+    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]);
 }
 
 function mouseClicked() {
@@ -43,6 +44,7 @@ function mouseClicked() {
             var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;
             add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]);
         }
+        // print_board(display_board)
     }
 }
 
@@ -118,10 +120,6 @@ function print_board(board)
 
 function undo_move()
 {
-    var pin =  pins.pop();
-    console.log(pin)
-    var column = (pin.x-(display_board.padding + display_board.unit_size/2))/display_board.unit_size;
-    display_board.uncommit_move(column);
     var pin =  pins.pop();
     var column = (pin.x-(display_board.padding + display_board.unit_size/2))/display_board.unit_size;
     display_board.uncommit_move(column);

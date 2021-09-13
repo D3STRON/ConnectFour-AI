@@ -1,13 +1,6 @@
 class Player{
     constructor(ParentPlayer)
     {
-        if(ParentPlayer instanceof Player)
-        {   
-            this.center_point = ParentPlayer.center_point;
-        }
-        else{
-            this.center_point = [0,1,3.5,7,3.5,1,0];
-        }
         this.fitness = 0;
         this.default_depth = 7;
     }
@@ -21,26 +14,6 @@ class Player{
     mutate(rate)
     {
 
-        if(Math.random()<rate)
-        {
-            this.center_point[0] += Math.round(randomGaussian(0, 1));
-            console.log(this.center_point[0]);
-        }
-        if(Math.random()<rate)
-        {
-            this.center_point[1] += Math.round(randomGaussian(0, 1));
-            console.log(this.center_point[1]);
-        }
-        if(Math.random()<rate)
-        {
-            this.center_point[2] += Math.round(randomGaussian(0, 1));
-            console.log(this.center_point[2]);
-        }
-        if(Math.random()<rate)
-        {
-            this.center_point[3] += Math.round(randomGaussian(0, 1));
-            console.log(this.center_point[3]);
-        }
     }
 
     make_move_minMax(playerType,board, depth, expectedDepth, al, be)
@@ -50,7 +23,7 @@ class Player{
         var output = -1*Infinity*playerType;
         var index;
         var available_column;
-        for(let i=0;i<board.size;i++)
+        for(let j=0, direction=1, i=3;j<board.size;j++, direction*=-1, i = i + direction*j)
         {
             var score;
             if(board.put_pin(playerType,i)==true)
@@ -65,7 +38,7 @@ class Player{
                     output = Infinity*playerType;
                     break;
                 }
-                if(depth<expectedDepth)
+                if(depth<expectedDepth || (board.available_columns>0 && board.available_columns<4))
                 {
                     score = this.make_move_minMax(playerType*-1,board,depth+1,expectedDepth,al,be);
                 }
@@ -145,7 +118,7 @@ class Player{
             var next_col = outer_col_limit;
             for(let j=0;j<board.connect;j++)
             {
-                if(next_row>=0 && next_row<board.size
+                if(next_row>=0 && next_row<board.size_vertical
                     && next_col>=0 && next_col<board.size)
                 {
                     var this_pin = board.get_pin_at(next_row,next_col);

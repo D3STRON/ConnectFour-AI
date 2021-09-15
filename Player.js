@@ -1,26 +1,34 @@
 class Player{
     constructor(ParentPlayer)
     {
+        if(ParentPlayer instanceof Player)
+        {
+            this.brain = ParentPlayer.brain.copy()
+        }
+        else{
+            this.brain = new NeuralNetwork(49,1)
+        }
         this.fitness = 0;
-        this.default_depth = 7;
+        this.stop_further= false;
+        this.default_depth = 8;
     }
     
     board_evaluation_NN(board)
     {
         let output = this.brain.feedforward(board.board_array);
-        return output*10;
+        return output.data[0][0]*10;
     }
 
-    mutate(rate)
+    mutate(mr)
     {
-
+        this.brain.mutate(mr)
     }
 
     make_move_minMax(playerType,board, depth, expectedDepth, al, be)
     {
         var max = -Infinity
         var min = Infinity
-        var output = -1*Infinity*playerType;
+        var output = -1*Infinity*playerType;;
         var index;
         var available_column;
         for(let j=0, direction=1, i=3;j<board.size;j++, direction*=-1, i = i + direction*j)
@@ -38,7 +46,7 @@ class Player{
                     output = Infinity*playerType;
                     break;
                 }
-                if(depth<expectedDepth || (board.available_columns>0 && board.available_columns<4))
+                if(depth<expectedDepth && board.put_pins<board.size_vertical*board.size)
                 {
                     score = this.make_move_minMax(playerType*-1,board,depth+1,expectedDepth,al,be);
                 }
@@ -156,16 +164,27 @@ class Player{
                     ((left>=0 && board.get_pin_at(row,left)!=0)
                 ||  (right<board.size && board.get_pin_at(row,right)!=0)
                 ||  (right<board.size && board.get_pin_at(row-1,right)!=0)
-                ||  (left>=0 && board.get_pin_at(row-1,left)!=0)
-                ||  (board.get_pin_at(row-1,i)!=0))
+                ||  (left>=0 && board.get_pin_at(row-1,left)!=0))
             )
             {
                 score += this.check_linear_evaluation(board, row, i, 0, 1);
-                score += this.check_linear_evaluation(board, row, i, 1, 0);
+                if(this.stop_further==true)
+                {
+                    break;
+                }
                 score += this.check_linear_evaluation(board, row, i, 1, 1);
+                if(this.stop_further==true)
+                {
+                    break;
+                }
                 score += this.check_linear_evaluation(board, row, i, -1, 1);
+                if(this.stop_further==true)
+                {
+                    break;
+                }
                 row+=1;
             }
+            this.stop_further = false;
         }
         return score;
     }
@@ -187,11 +206,11 @@ class Player{
                     && next_col>=0 && next_col<board.size)
                 {
                     var this_pin = board.get_pin_at(next_row,next_col);
-                    if(this_pin==1)
+                    if(this_pin==-1)
                     {
                         pinA +=this_pin;
                     }
-                    if(this_pin==-1)
+                    if(this_pin==1)
                     {
                         pinB +=this_pin;
                     }
@@ -206,15 +225,40 @@ class Player{
             }
             if(pinA==0 || pinB==0)
             {
-                score += pinA + pinB;
-            }
-            else if(pinB>1)
-            {
-                score -= pinB;
-            }
-            else if(pinA>1)
-            {   
-                score -= pinA;
+                var left_gaps = board.size*board.size_vertical - board.put_pins -(board.size_vertical-row-1);
+                // console.log(board.put_pins,left_gaps,(board.size_vertical-row-1));
+                
+                score += pinA+pinB;
+                
+                if(board.put_pins%2==0)
+                {
+                    if(left_gaps%2==0 && Math.abs(pinB)==board.connect-1)
+                    {
+                        // console.log('here')
+                        this.stop_further =true;
+                        score += (board.size_vertical-row-1)*2;
+                    }
+                    else if(left_gaps%2!=0 && Math.abs(pinA)==board.connect-1)
+                    {
+                        // console.log('here1')
+                        this.stop_further =true;
+                        score -= (board.size_vertical-row-1)*2;
+                    }
+                }
+                else if(board.put_pins%2!=0){
+                    if(left_gaps%2==0 && Math.abs(pinA)==board.connect-1)
+                    {
+                        // console.log('here2')
+                        this.stop_further =true;
+                        score -= (board.size_vertical-row-1)*2;
+                    }
+                    else if(left_gaps%2!=0 && Math.abs(pinB)==board.connect-1)
+                    {
+                        // console.log('here3')
+                        this.stop_further =true;
+                        score += (board.size_vertical-row-1)*2;
+                    }
+                }
             }
             outer_row_limit-=increment_row;
             outer_col_limit-=increment_col;

@@ -1,8 +1,8 @@
 const board_size = 7;
 const board_vertical_size = 6;
-const max_generations = 100;
-const offspring_per_generation = 128;
-const mr = 0.1;
+const max_generations = 500;
+const offspring_per_generation = 50;
+const mr = 0.13;
 const connect = 4;
 const min_max_depth = 5;
 const points_per_pin = 2;
@@ -70,33 +70,33 @@ function train()
     while(generation<max_generations)
     {
         var players = []
+        var best_player=new Player();
         for(let i =0;i<offspring_per_generation;i++)
         {
             players.push(new Player(ParentPlayer));
             players[i].mutate(mr);
         }
-        var matches = offspring_per_generation/2
-        while(matches>=1)
+        for(let i=0;i<players.length-1;i++)
         {
-            var new_players =[] 
-            for(let i =0;i<matches; i++)
-            { 
-                var board = new Board();
-                new_players.push(play(players,board));
-                console.log("Generation",generation,"stage", matches, "game",i,"done");
+            if(best_player.fitness<players[i].fitness+ (players.length-(i+1)))
+            {
+                for(let j=i+1;j<players.length;j++)
+                {
+                    var board = new Board();
+                    var winner = this.play(players[i],players[j],board);
+                    if(winner.fitness>best_player.fitness)
+                    {
+                        best_player = winner;
+                    }
+                }
+                console.log('Generation', generation, i*100/offspring_per_generation,'% complete');
             }
-            players = new_players;
-            matches/=2;
-        }
-        ParentPlayer = players.pop();
+        }   
+        ParentPlayer = best_player;
         generation++
     }
-
-    console.log(ParentPlayer);
-
-    var board = new Board();
-    play([ParentPlayer,ParentPlayer],board);
-    print_board(board);
+    console.log('best',ParentPlayer);
+    console.log(JSON.stringify(ParentPlayer))
 }
 
 function print_board(board)
@@ -121,13 +121,21 @@ function print_board(board)
 function undo_move()
 {
     var pin =  pins.pop();
+    turn_of*=-1;
     var column = (pin.x-(display_board.padding + display_board.unit_size/2))/display_board.unit_size;
     display_board.uncommit_move(column);
 }
 
-function play(players, board)
+function play(playerA, playerB, board)
 {
-    var players_this_game = [players.pop(), players.pop()];
+    var players_this_game = [playerA, playerB];
+    var index = Math.round(Math.random());
+    if(index==1)
+    {
+        var temp = players_this_game[index];
+        players_this_game[index] = players_this_game[0];
+        players_this_game[0]= temp;
+    }
     var turnOf = 1;
     while( board.committed_pins<board_size*board_vertical_size)
     {
@@ -136,6 +144,15 @@ function play(players, board)
         var column = players_this_game[i%2].make_move_minMax(turnOf,board,1,expected_depth,-Infinity,Infinity);
         if(column[1]==Infinity*turnOf)
         {
+            if(turnOf===1)
+            {
+                players_this_game[0].fitness+=1;
+                players_this_game[1].fitness-=1;
+            }
+            else{
+                players_this_game[1].fitness+=1;
+                players_this_game[0].fitness-=1;
+            }
             return players_this_game[i%2];
         }
         if(board.commit_move(turnOf,column[0])==true)

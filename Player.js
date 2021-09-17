@@ -232,7 +232,7 @@ class Player{
             }
             if(pinA==0 || pinB==0)
             {
-                if(Math.abs(pinB)==board.connect-1 && row == board.height_of_column[column])
+                if(Math.abs(pinB)==board.connect-1 && row != board.height_of_column[column])
                 {
                     if(captured!=this.second_player)
                     {
@@ -240,7 +240,7 @@ class Player{
                         score += this.make_entry(this.second_player,column_state ,row ,column);
                     }
                 }
-                else if(Math.abs(pinA)==board.connect-1 && row == board.height_of_column[column])
+                else if(Math.abs(pinA)==board.connect-1 && row != board.height_of_column[column])
                 {
                     if((row+1)%2!=0 && captured!=this.first_player)
                     {
@@ -278,12 +278,12 @@ class Player{
         }
         if(column_state[column][0].type==this.first_player)
         {
-            return  -30;
+            return  this.pointA;
         }
         else if(column_state[column][0].type==this.second_player && (column_state[column][0].row+1)%2!=0)
         {
-            return +5;
+            return this.pointB;
         }
-        return +20;
+        return this.pointC;
     }
 }

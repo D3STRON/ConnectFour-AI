@@ -1,6 +1,6 @@
 const board_size = 7;
 const board_vertical_size = 6;
-const max_generations = 500;
+const max_generations = 100;
 const offspring_per_generation = 50;
 const mr = 0.13;
 const connect = 4;
@@ -26,12 +26,14 @@ function draw()
     {
         pin.show();
     }
+    fill(color( 255, 0 ,50))
+    stroke(color( 255, 0 ,50))
+    ellipse(600,100,70,70);
 }
 
 function play_first()
 {
-    var expected_depth = ParentPlayer.default_depth;
-    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]);
+    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,1,-Infinity,Infinity)[0]);
 }
 
 function mouseClicked() {
@@ -45,6 +47,10 @@ function mouseClicked() {
             add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]);
         }
         // print_board(display_board)
+    }
+    else if(Math.sqrt(Math.pow((mouseX-600),2) + Math.pow((mouseY-100),2)) < 35 && pins.length>0)
+    {
+        this.undo_move();
     }
 }
 
@@ -89,7 +95,7 @@ function train()
                         best_player = winner;
                     }
                 }
-                console.log('Generation', generation, i*100/offspring_per_generation,'% complete');
+                console.log('Generation', generation, i*100/offspring_per_generation +1,'% complete');
             }
         }   
         ParentPlayer = best_player;

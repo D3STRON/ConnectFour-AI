@@ -178,14 +178,14 @@ class Player{
         {
             var left = i-1;
             var right = i+1;
-            var row = board.height_of_column[i]+1;
+            var row = board.height_of_column[i];
             column_state.push([]);
             while(
-                row>0 && row<board.size_vertical &&
+                row<board.size_vertical &&
                     ((left>=0 && board.get_pin_at(row,left)!=0)
                 ||  (right<board.size && board.get_pin_at(row,right)!=0)
-                ||  (right<board.size && board.get_pin_at(row-1,right)!=0)
-                ||  (left>=0 && board.get_pin_at(row-1,left)!=0))
+                ||  (right<board.size && row>0 && board.get_pin_at(row-1,right)!=0)
+                ||  (left>=0 &&  row>0 && board.get_pin_at(row-1,left)!=0))
             )
             {
                 score += this.check_linear_evaluation(board,column_state, row, i, 0, 1);
@@ -232,26 +232,21 @@ class Player{
             }
             if(pinA==0 || pinB==0)
             {
-                if((row+1)%2==0 && Math.abs(pinB)==board.connect-1 && captured!=this.second_player)
+                if(Math.abs(pinB)==board.connect-1 && row == board.height_of_column[column])
                 {
-                    captured = this.second_player;
-                    score += this.make_entry(this.second_player,column_state ,row ,column);
-                    //column capture by second player
+                    if(captured!=this.second_player)
+                    {
+                        captured = this.second_player;
+                        score += this.make_entry(this.second_player,column_state ,row ,column);
+                    }
                 }
-                else if((row+1)%2!=0 && Math.abs(pinA)==board.connect-1 && captured!=this.first_player)
+                else if(Math.abs(pinA)==board.connect-1 && row == board.height_of_column[column])
                 {
-                    captured = this.first_player;
-                    score += this.make_entry(this.first_player,column_state ,row ,column);
-                    //column capture by first player, it also negates the column captures by second player
-                    //while also holding its own capture
-                    // very valuable move
-                }
-                else if((row+1)%2!=0 && Math.abs(pinB)==board.connect-1 && captured!=this.second_player)
-                {
-                    captured = this.second_player;
-                    score += this.make_entry(this.second_player,column_state ,row ,column);
-                    // 3 formed by the second player
-                    // does not capture the said column but negates the column captures of second player in all column
+                    if((row+1)%2!=0 && captured!=this.first_player)
+                    {
+                        captured = this.first_player;
+                        score += this.make_entry(this.first_player,column_state ,row ,column);
+                    }
                 }
                 else{
                     score += pinA + pinB;
@@ -281,7 +276,7 @@ class Player{
             }
             column_state[column].push(entry);
         }
-        else if(column_state[column][0].type==this.first_player)
+        if(column_state[column][0].type==this.first_player)
         {
             return  -30;
         }

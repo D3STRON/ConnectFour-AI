@@ -8,8 +8,8 @@ class Player{
             this.pointC = ParentPlayer.pointC;
         }
         else{
-            this.pointA = -30;
-            this.pointB = 5;
+            this.pointA = -50;
+            this.pointB = 10;
             this.pointC = 20;
         }
         this.fitness = 0;
@@ -234,10 +234,14 @@ class Player{
             {
                 if(Math.abs(pinB)==board.connect-1 && row != board.height_of_column[column])
                 {
-                    if(captured!=this.second_player)
+                    if((row+1)%2==0 && captured!=this.second_player)
                     {
                         captured = this.second_player;
                         score += this.make_entry(this.second_player,column_state ,row ,column);
+                    }
+                    else if((row+1)%2!=0 && (column_state[column].length==0 || column_state[column][0].type!=this.first_player))
+                    {
+                        score += this.pointB;
                     }
                 }
                 else if(Math.abs(pinA)==board.connect-1 && row != board.height_of_column[column])
@@ -272,17 +276,13 @@ class Player{
         {
             var entry = {
                 type: type,
-                row: row
+                row: row+1
             }
             column_state[column].push(entry);
         }
         if(column_state[column][0].type==this.first_player)
         {
             return  this.pointA;
-        }
-        else if(column_state[column][0].type==this.second_player && (column_state[column][0].row+1)%2!=0)
-        {
-            return this.pointB;
         }
         return this.pointC;
     }

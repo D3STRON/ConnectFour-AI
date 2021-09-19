@@ -1,16 +1,19 @@
 class Player{
-    constructor(ParentPlayer)
+    constructor(Parent)
     {
-        if(ParentPlayer instanceof Player)
+        if(Parent instanceof Player)
         {
-            this.pointA = ParentPlayer.pointA;
-            this.pointB = ParentPlayer.pointB;
-            this.first_player_point = ParentPlayer.first_player_point;
+            this.pointA = Parent.pointA;
+            this.pointB = Parent.pointB;
+            this.first_player_point = Parent.first_player_point;
+            this.player_point_multiplier = Parent.player_point_multiplier;
+            this.passive_pin_point = Parent.player_point_multiplier;
         }
         else{
             this.pointA = -30;
             this.pointB = 30;
             this.player_point_multiplier = 3;
+            this.passive_pin_point = 20;
         }
         this.fitness = 0;
         this.default_depth = 6;
@@ -36,6 +39,11 @@ class Player{
         {
             this.pointB += Math.round(randomGaussian(0, 5));
             console.log(this.pointB)
+        }
+        if(Math.random()<rate)
+        {
+            this.passive_pin_point += Math.round(randomGaussian(0, 5));
+            console.log(this.passive_pin_point)
         }
         if(Math.random()<rate)
         {
@@ -273,7 +281,14 @@ class Player{
                 {
                     score += pinA*this.player_point_multiplier;
                 }
-                score +=  pinB;
+                else if((row+1)%2!=0 && row != board.height_of_column[column])
+                {
+                    score += pinB*this.player_point_multiplier;
+                }
+                else{
+                    score +=  pinB;
+                }
+                
             }
             outer_row_limit-=increment_row;
             outer_col_limit-=increment_col;
@@ -331,7 +346,7 @@ class Player{
                 score = this.pointB*(board_vertical_size-row);
             }
             else{
-                score = 20;
+                score = this.passive_pin_point;
             }
         }
         for(let j =0;j<board_size;j++)

@@ -5,17 +5,18 @@ class Player{
         {
             this.pointA = ParentPlayer.pointA;
             this.pointB = ParentPlayer.pointB;
-            this.pointC = ParentPlayer.pointC;
+            this.first_player_point = ParentPlayer.first_player_point;
         }
         else{
             this.pointA = -50;
-            this.pointB = 10;
-            this.pointC = 20;
+            this.pointB = 50;
+            this.player_point_multiplier = 3;
         }
         this.fitness = 0;
         this.default_depth = 6;
         this.first_player = 'F';
         this.second_player = 'S';
+        this.both_player = 'B'
     }
     
     board_evaluation_NN(board)
@@ -28,18 +29,18 @@ class Player{
     {
         if(Math.random()<rate)
         {
-            this.pointA += Math.round(randomGaussian(0, 2));
+            this.pointA += Math.round(randomGaussian(0, 5));
             console.log(this.pointA)
         }
         if(Math.random()<rate)
         {
-            this.pointB += Math.round(randomGaussian(0, 2));
+            this.pointB += Math.round(randomGaussian(0, 5));
             console.log(this.pointB)
         }
         if(Math.random()<rate)
         {
-            this.pointC += Math.round(randomGaussian(0, 2));
-            console.log(this.pointC)
+            this.player_point_multiplier += Math.round(randomGaussian(0, 2));
+            console.log(this.player_point_multiplier)
         }
     }
 
@@ -173,13 +174,12 @@ class Player{
     board_evaluation(board)
     {
         var score =0;
-        var column_state=[];
+        var column_state=Array(board.size).fill().map(()=>Array(board.size_vertical).fill(''));
         for(let i =0;i<board.size ;i++)
         {
             var left = i-1;
             var right = i+1;
             var row = board.height_of_column[i];
-            column_state.push([]);
             while(
                 row<board.size_vertical &&
                     ((left>=0 && board.get_pin_at(row,left)!=0)
@@ -192,7 +192,8 @@ class Player{
                 row+=1;
             }
         }
-        return score;
+        // console.log(column_state)
+        return score + this.evaluate_column_state(column_state, board);
     }
 
     check_linear_evaluation(board, column_state, row, column, increment_row, increment_col)
@@ -200,7 +201,6 @@ class Player{
         var outer_row_limit = row + increment_row*(board.connect-1);
         var outer_col_limit = column + increment_col*(board.connect-1);
         var score =0;
-        var captured = '';
         for(let i=0;i<board.connect;i++)
         {
             var pinA = 0;
@@ -232,58 +232,122 @@ class Player{
             }
             if(pinA==0 || pinB==0)
             {
-                if(Math.abs(pinB)==board.connect-1 && row != board.height_of_column[column])
+                if(Math.abs(pinB)==board.connect-1)
                 {
-                    if((row+1)%2==0 && captured!=this.second_player)
+                    if(row == board.height_of_column[column] && board.put_pins%2!=0)
                     {
-                        captured = this.second_player;
-                        score += this.make_entry(this.second_player,column_state ,row ,column);
+                        return Infinity;
                     }
-                    else if((row+1)%2!=0 && (column_state[column].length==0 || column_state[column][0].type!=this.first_player))
+                    else if((row+1)%2==0 && row != board.height_of_column[column])
                     {
-                        score += this.pointB;
+                        column_state[column][row] = this.second_player;
+                        return score;
+                    }
+                    else if((row+1)%2!=0 && row != board.height_of_column[column])
+                    {
+                        if(column_state[column][row]==this.first_player)
+                        {
+                            column_state[column][row] = this.both_player;
+                            return score;
+                        }
+                        column_state[column][row] = this.second_player;
                     }
                 }
-                else if(Math.abs(pinA)==board.connect-1 && row != board.height_of_column[column])
+                else if(Math.abs(pinA)==board.connect-1)
                 {
-                    if((row+1)%2!=0 && captured!=this.first_player)
+                    if(row == board.height_of_column[column] && board.put_pins%2==0)
                     {
-                        captured = this.first_player;
-                        score += this.make_entry(this.first_player,column_state ,row ,column);
+                        return -Infinity;
+                    }
+                    else if((row+1)%2!=0 && row != board.height_of_column[column])
+                    {
+                        if(column_state[column][row]==this.second_player)
+                        {
+                            column_state[column][row] = this.both_player;
+                            return score;
+                        }
+                        column_state[column][row] = this.first_player;
                     }
                 }
-                else{
-                    score += pinA + pinB;
+                else if((row+1)%2!=0 && row != board.height_of_column[column])
+                {
+                    score += pinA*this.player_point_multiplier;
                 }
+                score +=  pinB;
             }
             outer_row_limit-=increment_row;
             outer_col_limit-=increment_col;
         }
-        if(increment_col==1 && increment_row==0 && captured=='')
+        if(increment_col==1 && increment_row==0)
         {
             score += this.check_linear_evaluation(board,column_state, row, column, 1, 1);
         }
-        else if(increment_col==1 && increment_row==1 && captured=='' )
+        else if(increment_col==1 && increment_row==1)
         {
             score += this.check_linear_evaluation(board,column_state, row, column, -1, 1);
         }
         return score;
     }
 
-    make_entry(type, column_state, row,column)
+    evaluate_column_state(column_state, board)
     {
-        if(column_state[column].length==0)
+        for(let column =0 ; column <board.size; column++)
         {
-            var entry = {
-                type: type,
-                row: row+1
+            var found  = false;
+            var row = 0;
+            while(row <column_state[column].length)
+            {
+                if(column_state[column][row]!='')
+                {
+                    found = true;
+                    var points = this.get_points(column_state, column, column_state[column][row]);
+                    if(points !=0)
+                    {
+                        return points;
+                    }
+                }
+                row++;
             }
-            column_state[column].push(entry);
+            if(found == false)
+            {
+                column_state[column] = [];
+            }
         }
-        if(column_state[column][0].type==this.first_player)
+        return 0;
+    }
+
+    get_points(column_state, column, type)
+    {
+        var score = 0;
+        if(type == this.first_player || type == this.both_player)
         {
-            return  this.pointA;
+            score = -50;
         }
-        return this.pointC;
+        else if(type == this.second_player)
+        {
+            score = +50;
+        }
+        for(let j =0;j<board_size;j++)
+        {
+            var found  = false;
+            var i = 0;
+            while(i<column_state[j].length)
+            {
+                if(j!=column && column_state[j][i]!='')
+                {
+                    found = true;
+                    if( (type==this.both_player || column_state[j][i]!=type) && (i+1)%2 != 0)
+                    {
+                        return 0;
+                    }
+                }
+                i++;
+            }
+            if(found == false && j!=column)
+            {
+                column_state[j] = [];
+            }
+        }
+        return score;
     }
 }

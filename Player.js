@@ -8,8 +8,8 @@ class Player{
             this.first_player_point = ParentPlayer.first_player_point;
         }
         else{
-            this.pointA = -50;
-            this.pointB = 50;
+            this.pointA = -30;
+            this.pointB = 30;
             this.player_point_multiplier = 3;
         }
         this.fitness = 0;
@@ -300,7 +300,7 @@ class Player{
                 if(column_state[column][row]!='')
                 {
                     found = true;
-                    var points = this.get_points(column_state, column, column_state[column][row]);
+                    var points = this.get_points(column_state, column, row);
                     if(points !=0)
                     {
                         return points;
@@ -316,16 +316,23 @@ class Player{
         return 0;
     }
 
-    get_points(column_state, column, type)
+    get_points(column_state, column, row)
     {
+        var type = column_state[column][row];
         var score = 0;
         if(type == this.first_player || type == this.both_player)
         {
-            score = -50;
+            score = this.pointA*(board_vertical_size-row);
         }
         else if(type == this.second_player)
         {
-            score = +50;
+            if((row + 1)%2==0)
+            {
+                score = this.pointB*(board_vertical_size-row);
+            }
+            else{
+                score = 20;
+            }
         }
         for(let j =0;j<board_size;j++)
         {

@@ -3,9 +3,9 @@ class Pin{
         this.x = x;
         this.y = y;
         this.rad = pin_radius;
-        this.color = color( 0, 255, 50)
+        this.color = color( 255, 0 ,50)
         if(player==1){
-            this.color = color( 255, 0 ,50)
+            this.color = color( 0, 255, 50)
         }
     }
     show()

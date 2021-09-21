@@ -5,7 +5,6 @@ class Player{
         {
             this.pointA = Parent.pointA;
             this.pointB = Parent.pointB;
-            this.first_player_point = Parent.first_player_point;
             this.player_point_multiplier = Parent.player_point_multiplier;
             this.passive_pin_point = Parent.player_point_multiplier;
         }
@@ -17,9 +16,9 @@ class Player{
         }
         this.fitness = 0;
         this.default_depth = 6;
-        this.first_player = 'F';
-        this.second_player = 'S';
-        this.both_player = 'B'
+        this.first_player = -1;
+        this.second_player = 1;
+        this.both_player = 0;
     }
     
     board_evaluation_NN(board)
@@ -32,22 +31,22 @@ class Player{
     {
         if(Math.random()<rate)
         {
-            this.pointA += Math.round(randomGaussian(0, 5));
+            this.pointA += Math.round(randomGaussian(0, 1));
             console.log(this.pointA)
         }
         if(Math.random()<rate)
         {
-            this.pointB += Math.round(randomGaussian(0, 5));
+            this.pointB += Math.round(randomGaussian(0, 1));
             console.log(this.pointB)
         }
         if(Math.random()<rate)
         {
-            this.passive_pin_point += Math.round(randomGaussian(0, 5));
+            this.passive_pin_point += Math.round(randomGaussian(0, 1));
             console.log(this.passive_pin_point)
         }
         if(Math.random()<rate)
         {
-            this.player_point_multiplier += Math.round(randomGaussian(0, 2));
+            this.player_point_multiplier += Math.round(randomGaussian(0, 1));
             console.log(this.player_point_multiplier)
         }
     }
@@ -221,11 +220,11 @@ class Player{
                     && next_col>=0 && next_col<board.size)
                 {
                     var this_pin = board.get_pin_at(next_row,next_col);
-                    if(this_pin==-1)
+                    if(this_pin==this.first_player)
                     {
                         pinA +=this_pin;
                     }
-                    if(this_pin==1)
+                    if(this_pin==this.second_player)
                     {
                         pinB +=this_pin;
                     }
@@ -358,9 +357,16 @@ class Player{
                 if(j!=column && column_state[j][i]!='')
                 {
                     found = true;
-                    if( (type==this.both_player || column_state[j][i]!=type) && (i+1)%2 != 0)
+                    if((i+1)%2 != 0)
                     {
-                        return 0;
+                        if(type==this.both_player || column_state[j][i]!=type)
+                        {
+                            return 0;
+                        }
+                        else if(column_state[j][i]==type)
+                        {
+                            score += type*this.passive_pin_point;
+                        } 
                     }
                 }
                 i++;

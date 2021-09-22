@@ -125,14 +125,18 @@ class Player{
 
     is_winning_move(board, column)
     {
-        // check winning move along all the diagonals around the move
+        // check winning move along all the orientation around the move
         switch(true){
+            // check in forward diagonal
             case this.check_connections(board, column, 1, 1): 
                 return true;
+            // check in vertical
             case this.check_connections(board, column, 1,0):
-                return true
+                return true;
+            //check in backward diagonal
             case this.check_connections(board, column, -1, 1):
                 return true; 
+            // check in horizontal
             case this.check_connections(board, column, 0, 1):
                 return true;
         }
@@ -141,11 +145,12 @@ class Player{
 
     check_connections(board, column, increment_row, increment_col)
     {
-        // checks connections 4 move to left or right
+        // checks connections from 3 gaps to left or right or top or bottom of the made move to check if 4 is connected
         var row = board.height_of_column[column]-1;
         var outer_row_limit = row + increment_row*(board.connect-1);
         var outer_col_limit = column + increment_col*(board.connect-1);
         var type = board.get_pin_at(row,column);
+        // this loops sets a slot of 4 gasp in consideration
         for(let i=0;i<board.connect;i++)
         {
             var player_pins = 0;
@@ -153,6 +158,7 @@ class Player{
             var next_col = outer_col_limit;
             for(let j=0;j<board.connect;j++)
             {
+                // this loop analyzes that slot of 4 gaps for the pin configuration in it
                 if(next_row>=0 && next_row<board.size_vertical
                     && next_col>=0 && next_col<board.size)
                 {
@@ -181,12 +187,15 @@ class Player{
     board_evaluation(board)
     {
         var score =0;
+        // the matrix keeps tracks of the type of 3 in a line around a gap
         var column_state=Array(board.size).fill().map(()=>Array(board.size_vertical).fill(''));
         for(let i =0;i<board.size ;i++)
         {
             var left = i-1;
             var right = i+1;
             var row = board.height_of_column[i];
+            //for every column here we start analysis around the gaps surrounded by the pins
+            // to analyze the situation around it.
             while(
                 row<board.size_vertical &&
                     ((left>=0 && board.get_pin_at(row,left)!=0)
@@ -195,6 +204,7 @@ class Player{
                 ||  (left>=0 &&  row>0 && board.get_pin_at(row-1,left)!=0))
             )
             {
+                // we start analyzing the horizontal orientation around the gap
                 score += this.check_linear_evaluation(board,column_state, row, i, 0, 1);
                 row+=1;
             }
@@ -208,12 +218,14 @@ class Player{
         var outer_row_limit = row + increment_row*(board.connect-1);
         var outer_col_limit = column + increment_col*(board.connect-1);
         var score =0;
+        // this loops sets a slot of 4 gasp in consideration
         for(let i=0;i<board.connect;i++)
         {
             var pinA = 0;
             var pinB = 0;
             var next_row = outer_row_limit;
             var next_col = outer_col_limit;
+            // this loop analyzes that slot of 4 gaps for the pin configuration in it
             for(let j=0;j<board.connect;j++)
             {
                 if(next_row>=0 && next_row<board.size_vertical
@@ -243,17 +255,23 @@ class Player{
                 {
                     if(row == board.height_of_column[column] && board.put_pins%2!=0)
                     {
+                        // if first player made move and we find 3 connected of second player aroud a gap just above the
+                        // lowest pin in that column that means second player will make 4 connected in the next move
                         return Infinity;
                     }
                     else if((row+1)%2==0 && row != board.height_of_column[column])
                     {
+                        // if second player makes 3 in line around a gap in the even row that is very good for them
                         column_state[column][row] = this.second_player;
                         return score;
                     }
                     else if((row+1)%2!=0 && row != board.height_of_column[column])
                     {
+                        // if second player makes 3 in line around a gap in the odd row that can help draw the board position
+                        // if first player is in a winning state provided its not in the same column
                         if(column_state[column][row]==this.first_player)
                         {
+                            // if the first player has already captured the gap with a line of 3
                             column_state[column][row] = this.both_player;
                             return score;
                         }
@@ -264,12 +282,18 @@ class Player{
                 {
                     if(row == board.height_of_column[column] && board.put_pins%2==0)
                     {
+                        // if second player made move and we find 3 connected of first player aroud a gap just above the
+                        // lowest pin in that column that means first player will make 4 connected in the next move
                         return -Infinity;
                     }
                     else if((row+1)%2!=0 && row != board.height_of_column[column])
                     {
+                        // if first player connects 3 in line aroudn a gap in the odd row its very 
+                        // valuable move because it negates the opportunities(3 in line) the second player has made
+                        // while still maintaining a winning position for the first player
                         if(column_state[column][row]==this.second_player)
                         {
+                            // if that gap is already captured by the second player
                             column_state[column][row] = this.both_player;
                             return score;
                         }
@@ -278,10 +302,12 @@ class Player{
                 }
                 else if((row+1)%2!=0 && row != board.height_of_column[column])
                 {
+                    // if the first player makes move around the gaps in the odd row give it points
                     score += pinA*this.player_point_multiplier;
                 }
                 else if((row+1)%2!=0 && row != board.height_of_column[column])
                 {
+                    // if the second player makes move around the gaps in the even row give it points
                     score += pinB*this.player_point_multiplier;
                 }
                 else{
@@ -294,10 +320,12 @@ class Player{
         }
         if(increment_col==1 && increment_row==0)
         {
+            // check around the forward diagonal orientation
             score += this.check_linear_evaluation(board,column_state, row, column, 1, 1);
         }
         else if(increment_col==1 && increment_row==1)
         {
+            // check around the backward diagonal orientation
             score += this.check_linear_evaluation(board,column_state, row, column, -1, 1);
         }
         return score;
@@ -305,15 +333,21 @@ class Player{
 
     evaluate_column_state(column_state, board)
     {
+        // the function uses the findings of the previous function to make evaluations
+        // on the connected 3s
         for(let column =0 ; column <board.size; column++)
         {
+            // this boolean is just to empty the columns in column_state matrix which does not ahve any 
+            // gaps with 3 connected in line around it 
             var found  = false;
             var row = 0;
             while(row <column_state[column].length)
             {
+                // if we find a gap with 3 connected in line around it
                 if(column_state[column][row]!='')
                 {
                     found = true;
+                    // goto other columns and chekc if there is any opposition to it if not give the points
                     var points = this.get_points(column_state, column, row);
                     if(points !=0)
                     {

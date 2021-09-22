@@ -43,6 +43,8 @@ function mouseClicked() {
         if(add_pin_at(column)==true)
         {
             console.log(column)
+            // iterative deepning(deepen the depth or search with more moves played as possibilites keep reducing)
+            // here the depth deepns after every 5 moves
             var expected_depth = Math.floor(display_board.committed_pins/5) + ParentPlayer.default_depth;
             add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,expected_depth,-Infinity,Infinity)[0]);
         }

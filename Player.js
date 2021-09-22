@@ -18,7 +18,7 @@ class Player{
         this.default_depth = 6;
         this.first_player = -1;
         this.second_player = 1;
-        this.both_player = 0;
+        this.both_player = 'B';
     }
     
     board_evaluation_NN(board)

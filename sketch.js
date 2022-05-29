@@ -1,10 +1,10 @@
 const board_size = 7;
 const board_vertical_size = 6;
 const max_generations = 200;
-const offspring_per_generation = 100;
-const mr = 0.1;
+const offspring_per_generation = 50;
+var mr = 0.01;
 const connect = 4;
-const min_max_depth = 5;
+const min_max_depth = 6;
 const points_per_pin = 2;
 const pin_radius = 60;
 var display_board;
@@ -34,7 +34,7 @@ function draw()
 
 function play_first()
 {
-    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,ParentPlayer.expected_depth,-Infinity,Infinity)[0]);
+    add_pin_at(ParentPlayer.make_move_minMax(turn_of,display_board,1,ParentPlayer.default_depth,-Infinity,Infinity)[0]);
 }
 
 function mouseClicked() {

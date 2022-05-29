@@ -9,15 +9,21 @@ class Player{
             var numI = board_size*board_size
             var numH = Math.round(numI/2)
             var numE = Math.round(numH/2)
-            this.brain = new NeuralNetwork(numI, numH, numE,1);
+            this.brain = new NeuralNetwork([numI, numH, numE,1]);
         }
+        this.default_depth = 6;
         this.fitness = 0;
     }
     
     board_evaluation_NN(board)
     {
         let output = this.brain.feedforward(board.board_array);
-        return output.data[0][0]*10;
+        let turnOf = 1;
+        if(board.put_pins%2==0)
+        {
+            turnOf = -1;
+        }
+        return output.data[0][0]*turnOf;
     }
 
     make_move_minMax(playerType,board, depth, expectedDepth, al, be)

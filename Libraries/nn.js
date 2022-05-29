@@ -1,63 +1,71 @@
-
 class NeuralNetwork{
-    constructor(numI, numH, numE, numO)
+    constructor(parameters)
     {
-        if (numI instanceof NeuralNetwork) {
-            this.input_nodes = numI.input_nodes;
-            this.hidden_nodes = numI.hidden_nodes;
-            this.edge_nodes = numI.edge_nodes;
-            this.output_nodes = numI.output_nodes;
-      
-            this.weight_ih = numI.weight_ih.copy();
-            this.weight_he = numI.weight_he.copy();
-            this.weight_eo = numI.weight_eo.copy();
-      
-            this.bias_h = numI.bias_h.copy();
-            this.bias_e = numI.bias_e.copy();
-            this.bias_o = numI.bias_o.copy();
-            this.activation= numI.activation
-            this.delta_activation= numI.delta_activation
+        this.weights = [];
+        this.biases = [];
+        if (parameters instanceof NeuralNetwork) {
+            for(let i=0;i<parameters.weights.length;i++)
+            {
+                this.weights.push(parameters.weights[i].copy());
+                this.biases.push(parameters.biases[i].copy());
+            }
+            this.activation= parameters.activation;
+            this.parameters = parameters.parameters;
+            this.delta_activation= parameters.delta_activation;
         } 
         else {
-            this.input_nodes=numI 
-            this.hidden_nodes=numH
-            this.edge_nodes=numE
-            this.output_nodes=numO
-            this.weight_ih= new Matrix(this.hidden_nodes,this.input_nodes)// the list of weights between input nodes and hidden nodes in this adjacency matrix
-            this.weight_ih.randomize()// all weights will be random to begin with
-            this.weight_he= new Matrix(this.edge_nodes,this.hidden_nodes)// the list of weights between hiden nodes and edge nodes in this adjacency matrix
-            this.weight_he.randomize()
-            this.weight_eo=new Matrix(this.output_nodes,this.edge_nodes)//the list of weights between edge nodes and output nodes in this adjacency matrix
-            this.weight_eo.randomize()
-            this.bias_h= new Matrix(this.hidden_nodes,1)
-            this.bias_h.randomize()
-            this.bias_e=new Matrix(this.edge_nodes,1)
-            this.bias_e.randomize()
-            this.bias_o=new Matrix(this.output_nodes,1)
-            this.bias_o.randomize()
-            this.learning_rate= 0.1
-            this.activation = sigmoid
-            this.delta_activation= dsigmoid
-          }
+            this.parameters = parameters;
+            for(let i=0;i<this.parameters.length-1;i++)
+            {
+                this.weights.push(new Matrix(parameters[i+1],parameters[i]));
+                this.weights[i].randomize();
+                this.biases.push(new Matrix(parameters[i+1],1));
+                this.biases[i].randomize();
+            }
+            this.learning_rate= 0.;
+            this.activation = reLU;
+            this.delta_activation= dsigmoid;
+        }
     }
 
     feedforward(input_array)
     {
-        this.hidden= Matrix.multiply(this.weight_ih,input_array)
-        this.hidden.add(this.bias_h)//output of the weighted sum plus bias
-        this.hidden.map(this.activation)// finally pass that outputs at every hidden node through the activation function to get the hidden layers final output
+        this.layer = [input_array]// converting input array to a object of Matrix class to perfomr Matrix operations
         
-        this.edge=Matrix.multiply(this.weight_he,this.hidden)//simialar for the final output layer for which the hidden layer is the input
-        this.edge.add(this.bias_e)
-        this.edge.map(this.activation)
-
-        let output=Matrix.multiply(this.weight_eo,this.edge)//simialar for the final output layer for which the hidden layer is the input
-        output.add(this.bias_o)
-        output.map(this.activation)
-
-        return output
+        for(let i=0;i<this.weights.length;i++)
+        {
+            this.layer.push(Matrix.multiply(this.weights[i],this.layer[i]));
+            this.layer[i+1].add(this.biases[i]);//output of the weighted sum plus bias
+            this.layer[i+1].map(this.activation);// finally pass that layer outputs at every layer node through the activation function to get the layers final output
+        }
+        return this.layer[this.layer.length-1];
     }
 
+    train(input_array,target_array)
+    {
+        let outputs=this.feedforward(input_array)        
+        let targets=Matrix.fromArray(target_array)
+        let errors = Matrix.subtract(targets,outputs)//error to determine cost function
+        //console.log(output_errors.data[0][0]*output_errors.data[0][0])
+
+        //Calculate gradient for hidden to output
+        let gradients= Matrix.map(outputs,this.delta_activation)// derivative for activation function output elements are now oi(1+oi)
+
+        for(let i=this.layer.length-2;i>=0;i--)
+        {
+            gradients.multiply(errors);
+            gradients.multiply(this.learning_rate);// multiplying every element with learning rate
+            let layer_t = Matrix.transpose(this.layer[i]);
+            let deltas_weight= Matrix.multiply(gradients,layer_t);//this if for deltas_weight which is the required change in Weights between i layer and i-1 layer
+            this.weights[i].add(deltas_weight); // finally adjusting weights of ith layer
+            this.biases[i].add(gradients);// finally adjusting biases of ith layer
+            if(i>0)
+            {
+                errors= Matrix.multiply(Matrix.transpose(this.weights[i]),errors);
+                gradients= Matrix.map(this.layer[i],this.delta_activation);
+            }
+        }
+    }
     mutate(rate) {
         function mutate(val)
         {
@@ -68,12 +76,11 @@ class NeuralNetwork{
                 return val
             }
         }      
-        this.weight_ih.map(mutate);
-        this.weight_he.map(mutate);
-        this.weight_eo.map(mutate);
-        this.bias_h.map(mutate);
-        this.bias_e.map(mutate);
-        this.bias_o.map(mutate);
+        for(let i=0;i<this.weights.length;i++)
+        {
+            this.weights[i].map(mutate);
+            this.biases[i].map(mutate);
+        }
   }
   copy()
   {
